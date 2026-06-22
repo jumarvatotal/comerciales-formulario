@@ -1,0 +1,2517 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jumarva Formulario</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --red: #E8201A;
+    --red-dark: #C41814;
+    --red-light: #FFF0F0;
+    --red-border: #F5C0BB;
+    --black: #1A1A1A;
+    --gray-dark: #4A4A4A;
+    --gray-mid: #8A8A8A;
+    --gray-light: #D4D4D4;
+    --gray-bg: #F5F5F5;
+    --white: #FFFFFF;
+    --success: #2E7D5A;
+    --success-bg: #EAF4EE;
+    --success-border: #B8D9C5;
+    --warning-bg: #FEF6E8;
+    --warning: #A06010;
+    --warning-border: #F0D4A0;
+    --radius-pill: 100px;
+    --radius: 8px;
+    --radius-sm: 4px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.06);
+  }
+
+  body {
+    font-family: 'Montserrat', sans-serif;
+    background: var(--gray-bg);
+    color: var(--black);
+    min-height: 100vh;
+    padding: 0 0 4rem;
+  }
+
+  /* TOP BAR — estilo barra Jumarva */
+  .topbar {
+    background: var(--gray-dark);
+    color: white;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    padding: 8px 1rem;
+  }
+
+  /* NAVBAR */
+  .navbar {
+    background: var(--white);
+    border-bottom: 1px solid var(--gray-light);
+    padding: 16px 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2.5rem;
+  }
+  .navbar-logo {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 26px;
+    font-weight: 400;
+    color: var(--red);
+    letter-spacing: -0.02em;
+    text-transform: lowercase;
+  }
+  .navbar-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gray-mid);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+  }
+  .date-badge {
+    font-size: 12px;
+    color: var(--gray-mid);
+    font-weight: 500;
+  }
+
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  /* PAGE HEADER */
+  .page-header {
+    margin-bottom: 2rem;
+  }
+  .page-header h1 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 32px;
+    font-weight: 500;
+    color: var(--black);
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .page-header p {
+    font-size: 14px;
+    color: var(--gray-mid);
+    font-weight: 400;
+  }
+
+  /* SECTION */
+  .section {
+    background: var(--white);
+    border: 1px solid var(--gray-light);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: var(--shadow);
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1.25rem;
+    padding-bottom: .75rem;
+    border-bottom: 2px solid var(--gray-bg);
+  }
+  .section-num {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--red);
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--black);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+  }
+
+  /* FIELDS */
+  .field { margin-bottom: 1rem; }
+  .field:last-child { margin-bottom: 0; }
+  .field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--gray-dark);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+  }
+  .field label .req { color: var(--red); margin-left: 2px; }
+  .field input,
+  .field select,
+  .field textarea {
+    width: 100%;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 14px;
+    padding: 10px 14px;
+    border: 1.5px solid var(--gray-light);
+    border-radius: var(--radius-sm);
+    background: var(--white);
+    color: var(--black);
+    transition: border-color .15s, box-shadow .15s;
+    appearance: none;
+  }
+  .field select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238A8A8A' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+    cursor: pointer;
+  }
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus {
+    outline: none;
+    border-color: var(--red);
+    box-shadow: 0 0 0 3px rgba(232,32,26,.1);
+  }
+  .field textarea { resize: vertical; min-height: 88px; line-height: 1.6; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+  /* PRIORIDAD */
+  .priority-group { display: flex; gap: 8px; margin-top: 2px; }
+  .prio-btn {
+    flex: 1;
+    padding: 9px 6px;
+    border: 1.5px solid var(--gray-light);
+    border-radius: var(--radius-pill);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    background: var(--white);
+    color: var(--gray-mid);
+    text-align: center;
+    transition: all .15s;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+  }
+  .prio-btn:hover { border-color: var(--red); color: var(--red); }
+  .prio-btn.active-normal { background: var(--success-bg); color: var(--success); border-color: var(--success-border); }
+  .prio-btn.active-urgente { background: var(--warning-bg); color: var(--warning); border-color: var(--warning-border); }
+  .prio-btn.active-critico { background: var(--red-light); color: var(--red); border-color: var(--red-border); }
+
+  /* CHIPS */
+  .chip-group { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+  .chip {
+    padding: 7px 16px;
+    border-radius: var(--radius-pill);
+    border: 1.5px solid var(--gray-light);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    background: var(--white);
+    color: var(--gray-dark);
+    transition: all .15s;
+    user-select: none;
+  }
+  .chip:hover { border-color: var(--red); background: var(--red); color: var(--white); }
+  .chip.active {
+    background: var(--black);
+    color: var(--white);
+    border-color: var(--black);
+  }
+
+  /* FORMATO + MODELO */
+  .modelo-panel { margin-top: 12px; display: none; }
+  .modelo-panel.visible { display: block; }
+  .modelo-panel label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--gray-dark);
+    display: block;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+  }
+  .modelo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 8px;
+  }
+  .modelo-btn {
+    padding: 14px 8px;
+    border: 1.5px solid var(--gray-light);
+    border-radius: var(--radius);
+    background: var(--white);
+    cursor: pointer;
+    text-align: center;
+    transition: all .15s;
+    font-family: 'Montserrat', sans-serif;
+  }
+  .modelo-btn:hover { border-color: var(--red); background: var(--red); }
+  .modelo-btn.active { border-color: var(--black); background: var(--black); }
+  .modelo-btn .modelo-icon { font-size: 22px; display: block; margin-bottom: 6px; }
+  .modelo-btn .modelo-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--black);
+    display: block;
+    text-transform: uppercase;
+    letter-spacing: .02em;
+  }
+  .modelo-btn.active .modelo-name { color: var(--white); }
+
+  /* TINTAS */
+  .tintas-group { display: flex; gap: 8px; flex-wrap: wrap; }
+  .tinta-btn {
+    flex: 1;
+    min-width: 64px;
+    padding: 9px 6px;
+    border: 1.5px solid var(--gray-light);
+    border-radius: var(--radius-pill);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    background: var(--white);
+    color: var(--gray-mid);
+    text-align: center;
+    transition: all .15s;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+  }
+  .tinta-btn:hover { border-color: var(--red); background: var(--red); color: var(--white); }
+  .tinta-btn.active { background: var(--black); color: var(--white); border-color: var(--black); }
+
+  /* FILAS DE TINTA */
+  .tinta-fila {
+    display: grid;
+    grid-template-columns: auto 1fr 2fr;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--gray-bg);
+    border: 1.5px solid var(--gray-light);
+    border-radius: var(--radius-sm);
+    margin-bottom: 6px;
+  }
+  .tinta-fila:last-child { margin-bottom: 0; }
+  .tinta-num {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--red);
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .tinta-tipo-group { display: flex; gap: 6px; }
+  .tinta-tipo-btn {
+    flex: 1;
+    padding: 7px 8px;
+    border: 1.5px solid var(--gray-light);
+    border-radius: var(--radius-pill);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    background: var(--white);
+    color: var(--gray-mid);
+    text-align: center;
+    transition: all .15s;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+  }
+  .tinta-tipo-btn:hover { border-color: var(--red); background: var(--red); color: var(--white); }
+  .tinta-tipo-btn.active { background: var(--black); color: var(--white); border-color: var(--black); }
+  .tinta-ref {
+    width: 100%;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 13px;
+    padding: 7px 10px;
+    border: 1.5px solid var(--gray-light);
+    border-radius: var(--radius-sm);
+    background: var(--white);
+    color: var(--black);
+    transition: all .15s;
+  }
+  .tinta-ref:focus { outline: none; border-color: var(--red); box-shadow: 0 0 0 3px rgba(232,32,26,.1); }
+  .tinta-ref.pantone-active { border-color: var(--red); }
+  .tinta-ref::placeholder { color: var(--gray-light); }
+
+  /* TIPO DE TRABAJO */
+  .tipo-group { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+  .tipo-btn {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    border: 1.5px solid var(--gray-light);
+    border-radius: var(--radius);
+    background: var(--white);
+    cursor: pointer;
+    text-align: left;
+    transition: all .15s;
+    font-family: 'Montserrat', sans-serif;
+    width: 100%;
+  }
+  .tipo-btn:hover { border-color: var(--red); background: var(--red); }
+  .tipo-btn.active { border-color: var(--black); background: var(--black); }
+  .tipo-icon { font-size: 20px; flex-shrink: 0; color: var(--black); display: flex; align-items: center; }
+  .tipo-btn:hover .tipo-icon,
+  .tipo-btn.active .tipo-icon { color: var(--white); }
+  .tipo-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--black);
+    display: block;
+    line-height: 1.2;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+  }
+  .tipo-btn.active .tipo-label { color: var(--white); }
+  .tipo-desc { font-size: 12px; color: var(--gray-mid); display: block; margin-top: 2px; font-weight: 400; text-transform: none; letter-spacing: 0; }
+  .tipo-btn:hover .tipo-desc { color: rgba(255,255,255,.75); }
+  .tipo-btn.active .tipo-desc { color: rgba(255,255,255,.75); }
+  .bloque-condicional { animation: fadeIn .2s ease; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
+
+  /* TIPO BTN COMPACTO — para Muestra */
+  .tipo-btn-sm {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    padding: 10px 14px;
+    border: 1.5px solid var(--gray-light);
+    border-radius: var(--radius);
+    background: var(--white);
+    cursor: pointer;
+    text-align: left;
+    transition: all .15s;
+    font-family: 'Montserrat', sans-serif;
+    width: 100%;
+  }
+  .tipo-btn-sm:hover { border-color: var(--red); background: var(--red); }
+  .tipo-btn-sm.active { border-color: var(--black); background: var(--black); }
+  .tipo-label-sm {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--black);
+    text-transform: uppercase;
+    letter-spacing: .03em;
+  }
+  .tipo-btn-sm.active .tipo-label-sm,
+  .tipo-btn-sm:hover .tipo-label-sm { color: var(--white); }
+  .tipo-desc-sm { font-size: 11px; color: var(--gray-mid); font-weight: 400; }
+  .tipo-btn-sm:hover .tipo-desc-sm,
+  .tipo-btn-sm.active .tipo-desc-sm { color: rgba(255,255,255,.75); }
+
+  /* TARJETA DE PRODUCTO */
+  .producto-card {
+    border: 1.5px solid var(--gray-light);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    background: var(--gray-bg);
+    animation: fadeIn .25s ease;
+  }
+  .producto-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+  .producto-card-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--red);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+  }
+  .btn-remove-producto {
+    background: none;
+    border: none;
+    color: var(--gray-mid);
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    transition: color .15s;
+  }
+  .btn-remove-producto:hover { color: var(--red); }
+
+  /* SI/NO TOGGLE */
+  .sino-group { display: flex; gap: 8px; }
+  .sino-btn {
+    flex: 1;
+    padding: 8px;
+    border: 1.5px solid var(--gray-light);
+    border-radius: var(--radius-pill);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    background: var(--white);
+    color: var(--gray-mid);
+    text-align: center;
+    transition: all .15s;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+  }
+  .sino-btn:hover { border-color: var(--red); background: var(--red); color: var(--white); }
+  .sino-btn.active { background: var(--black); color: var(--white); border-color: var(--black); }
+
+  /* BLOQUE TÉCNICO — anverso/reverso + tipo */
+  .tecnico-bloque {
+    background: var(--white);
+    border: 1px solid var(--gray-light);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    margin-bottom: 10px;
+  }
+  .tecnico-bloque-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--gray-dark);
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    margin-bottom: 8px;
+    display: block;
+  }
+  .tecnico-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .tecnico-row:last-child { margin-bottom: 0; }
+  .tecnico-row label {
+    font-size: 10px;
+    color: var(--gray-mid);
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    margin-bottom: 4px;
+    display: block;
+  }
+
+  /* BOTÓN AÑADIR PRODUCTO */
+  .btn-add-producto {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px;
+    border: 1.5px dashed var(--gray-light);
+    border-radius: var(--radius);
+    background: var(--white);
+    color: var(--gray-dark);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .btn-add-producto:hover { border-color: var(--red); color: var(--red); background: var(--red-light); }
+
+  /* BUSCADOR DE CLIENTE */
+  .cliente-search-wrap { position: relative; }
+  #cliente-buscador {
+    width: 100%;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 14px;
+    padding: 10px 14px;
+    border: 1.5px solid var(--gray-light);
+    border-radius: var(--radius-sm);
+    background: var(--white);
+    color: var(--black);
+    transition: border-color .15s, box-shadow .15s;
+  }
+  #cliente-buscador:focus { outline: none; border-color: var(--red); box-shadow: 0 0 0 3px rgba(232,32,26,.1); }
+  #cliente-buscador.error { border-color: var(--red) !important; box-shadow: 0 0 0 3px rgba(232,32,26,.12); }
+
+  .cliente-resultados {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    max-height: 280px;
+    overflow-y: auto;
+    background: var(--white);
+    border: 1.5px solid var(--gray-light);
+    border-radius: var(--radius);
+    box-shadow: 0 4px 16px rgba(0,0,0,.12);
+    z-index: 30;
+  }
+  .cliente-resultados.show { display: block; }
+  .cliente-resultado-item {
+    padding: 10px 14px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--gray-bg);
+    transition: background .1s;
+  }
+  .cliente-resultado-item:last-child { border-bottom: none; }
+  .cliente-resultado-item:hover { background: var(--red-light); }
+  .cliente-resultado-nombre { font-size: 13px; font-weight: 600; color: var(--black); }
+  .cliente-resultado-detalle { font-size: 11px; color: var(--gray-mid); margin-top: 2px; }
+  .cliente-resultado-vacio { padding: 14px; text-align: center; font-size: 12px; color: var(--gray-mid); }
+
+  .cliente-seleccionado {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    padding: 10px 14px;
+    background: var(--success-bg);
+    border: 1px solid var(--success-border);
+    border-radius: var(--radius-sm);
+    color: var(--success);
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .cliente-seleccionado svg { flex-shrink: 0; }
+  .cliente-seleccionado span { flex: 1; }
+  .btn-cambiar-cliente {
+    background: none;
+    border: none;
+    color: var(--success);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 0;
+  }
+
+  .btn-cliente-nuevo {
+    display: block;
+    margin-top: 8px;
+    background: none;
+    border: none;
+    color: var(--gray-mid);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 0;
+    transition: color .15s;
+  }
+  .btn-cliente-nuevo:hover { color: var(--red); }
+  .btn-cliente-nuevo.activo { color: var(--red); font-weight: 700; text-decoration: none; }
+
+  /* ID DISPLAY */
+  .id-display {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--gray-bg);
+    border: 1.5px solid var(--gray-light);
+    border-radius: var(--radius-sm);
+  }
+  .id-icon { font-size: 16px; flex-shrink: 0; }
+  .id-value {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--red);
+    letter-spacing: .06em;
+    flex: 1;
+    text-transform: uppercase;
+  }
+  .id-badge {
+    font-size: 11px;
+    color: var(--gray-mid);
+    background: var(--white);
+    border: 1px solid var(--gray-light);
+    border-radius: var(--radius-pill);
+    padding: 3px 10px;
+    white-space: nowrap;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+  }
+
+  /* UPLOAD */
+  .upload-zone {
+    border: 2px dashed var(--gray-light);
+    border-radius: var(--radius);
+    padding: 2rem 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all .15s;
+    background: var(--gray-bg);
+  }
+  .upload-zone:hover { border-color: var(--red); background: var(--red-light); }
+  .upload-icon { font-size: 32px; display: block; margin-bottom: 8px; }
+  .upload-zone p { font-size: 13px; color: var(--gray-mid); line-height: 1.6; }
+  .upload-zone span { color: var(--red); font-weight: 600; cursor: pointer; }
+  .file-list { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+  .file-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    padding: 8px 12px;
+    background: var(--white);
+    border: 1px solid var(--gray-light);
+    border-radius: var(--radius-sm);
+  }
+  .file-item .fname { flex: 1; color: var(--black); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+  .file-item .fsize { font-size: 11px; color: var(--gray-mid); }
+  .file-item .rm { cursor: pointer; color: var(--gray-light); font-size: 16px; padding: 2px 4px; line-height: 1; transition: color .1s; }
+  .file-item .rm:hover { color: var(--red); }
+
+  /* DIVIDER */
+  .field-divider { height: 1px; background: var(--gray-bg); margin: 1rem 0; border: none; border-top: 1px solid var(--gray-light); }
+
+  /* HINT */
+  .field-hint { font-size: 11px; color: var(--gray-mid); margin-top: 5px; font-weight: 400; }
+
+  /* SUBMIT */
+  .submit-area {
+    margin-top: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .submit-hint { font-size: 12px; color: var(--gray-mid); flex: 1; min-width: 200px; line-height: 1.5; }
+  .btn-submit {
+    background: var(--black);
+    color: var(--white);
+    border: none;
+    padding: 14px 32px;
+    border-radius: var(--radius-pill);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .btn-submit:hover { background: var(--red); }
+  .btn-submit:active { transform: scale(.98); }
+
+  /* SPINNER DE CARGA */
+  .btn-submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .btn-spinner {
+    display: none;
+    width: 16px;
+    height: 16px;
+    border: 2.5px solid rgba(255,255,255,.35);
+    border-top-color: var(--white);
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+  }
+  .btn-submit.loading .btn-spinner { display: inline-block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* SUCCESS */
+  .success-msg {
+    display: none;
+    margin-top: 1rem;
+    padding: 14px 18px;
+    background: var(--success-bg);
+    border: 1px solid var(--success-border);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    color: var(--success);
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+  }
+  .success-msg.show { display: flex; }
+
+  /* ── RESPONSIVE ───────────────────────────── */
+
+  /* Tablet (≤ 768px) */
+  @media (max-width: 768px) {
+    .container { padding: 0 1rem; }
+    .navbar { padding: 12px 1rem; gap: .5rem; }
+    .navbar-title { display: none; }
+    .page-header h1 { font-size: 26px; }
+    .section { padding: 1.25rem 1rem; }
+    .modelo-grid { grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); }
+  }
+
+  /* Móvil (≤ 480px) */
+  @media (max-width: 480px) {
+    body { padding-bottom: 3rem; }
+    .topbar { font-size: 11px; padding: 6px 1rem; }
+
+    /* Navbar */
+    .navbar { padding: 10px 1rem; }
+    .navbar-logo { font-size: 22px; }
+    .date-badge { font-size: 11px; }
+
+    /* Header */
+    .page-header { margin-bottom: 1.25rem; }
+    .page-header h1 { font-size: 22px; letter-spacing: .02em; }
+    .page-header p { font-size: 13px; }
+
+    /* Sections */
+    .section { padding: 1rem; border-radius: 6px; }
+    .section-title { font-size: 11px; }
+
+    /* Grid columns → single */
+    .row2, .row3 { grid-template-columns: 1fr; gap: 0; }
+
+    /* Fields */
+    .field input, .field select, .field textarea { font-size: 16px; /* prevent iOS zoom */ padding: 10px 12px; }
+    .field label { font-size: 11px; }
+
+    /* Prioridad — full width pills */
+    .priority-group { gap: 6px; }
+    .prio-btn { padding: 8px 4px; font-size: 11px; }
+
+    /* Chips */
+    .chip { font-size: 12px; padding: 6px 12px; }
+
+    /* Modelos */
+    .modelo-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 6px; }
+    .modelo-btn { padding: 10px 6px; }
+    .modelo-btn .modelo-name { font-size: 11px; }
+
+    /* Tintas selector */
+    .tintas-group { gap: 5px; }
+    .tinta-btn { min-width: 0; font-size: 11px; padding: 8px 4px; }
+
+    /* Tinta filas — apiladas */
+    .tinta-fila {
+      grid-template-columns: auto 1fr;
+      grid-template-rows: auto auto;
+      gap: 8px;
+      padding: 10px;
+    }
+    .tinta-tipo-group { grid-column: 2 / 3; }
+    .tinta-ref { grid-column: 1 / -1; }
+
+    /* Tipo de trabajo */
+    .tipo-btn { padding: 12px; gap: 10px; }
+    .tipo-label { font-size: 13px; }
+    .tipo-desc { font-size: 11px; }
+    .tipo-icon svg { width: 18px; height: 18px; }
+
+    /* ID display */
+    .id-display { flex-wrap: wrap; gap: 6px; }
+    .id-badge { font-size: 10px; }
+
+    /* Upload */
+    .upload-zone { padding: 1.25rem 1rem; }
+    .upload-icon { font-size: 26px; }
+
+    /* Submit */
+    .submit-area { flex-direction: column; align-items: stretch; }
+    .submit-hint { min-width: unset; text-align: center; }
+    .btn-submit { width: 100%; padding: 15px; font-size: 14px; text-align: center; }
+  }
+
+
+  /* PROGRESS INDICATOR */
+  .progress-bar {
+    background: var(--white);
+    border-bottom: 1px solid var(--gray-light);
+    padding: 12px 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+  .progress-inner {
+    max-width: 720px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 0;
+  }
+  .progress-step {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    gap: 0;
+  }
+  .progress-step:last-child { flex: 0; }
+  .step-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid var(--gray-light);
+    background: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--gray-mid);
+    flex-shrink: 0;
+    transition: all .25s;
+    position: relative;
+    z-index: 1;
+  }
+  .step-dot.active {
+    border-color: var(--red);
+    background: var(--red);
+    color: var(--white);
+  }
+  .step-dot.done {
+    border-color: var(--success);
+    background: var(--success);
+    color: var(--white);
+  }
+  .step-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--gray-mid);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin-left: 6px;
+    white-space: nowrap;
+    transition: color .25s;
+  }
+  .progress-step .step-dot.active ~ .step-label,
+  .step-label.active { color: var(--black); }
+  .step-label.done { color: var(--success); }
+  .progress-line {
+    flex: 1;
+    height: 2px;
+    background: var(--gray-light);
+    margin: 0 8px;
+    transition: background .25s;
+    position: relative;
+  }
+  .progress-line::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    height: 100%;
+    width: 0%;
+    background: var(--success);
+    transition: width .4s ease;
+  }
+  .progress-line.done::after { width: 100%; }
+
+  /* Mobile: hide labels on very small screens */
+  @media (max-width: 380px) {
+    .step-label { display: none; }
+    .progress-bar { padding: 10px 1rem; }
+  }
+
+  /* VALIDACIÓN */
+  .field input.error,
+  .field select.error,
+  .field textarea.error {
+    border-color: var(--red) !important;
+    box-shadow: 0 0 0 3px rgba(232,32,26,.12);
+  }
+  .field-error {
+    font-size: 11px;
+    color: var(--red);
+    font-weight: 500;
+    margin-top: 4px;
+    display: none;
+    align-items: center;
+    gap: 4px;
+  }
+  .field-error.show { display: flex; }
+  .chip-group.error .chip:first-child,
+  .tintas-group.error .tinta-btn:first-child,
+  .sino-group.error .sino-btn:first-child {
+    outline: 2px solid var(--red);
+    outline-offset: 2px;
+    border-radius: var(--radius-pill);
+  }
+  .modelo-grid.error {
+    outline: 2px solid var(--red);
+    outline-offset: 4px;
+    border-radius: var(--radius-sm);
+  }
+  .upload-zone.error {
+    border-color: var(--red) !important;
+    background: var(--red-light);
+  }
+  .tipo-btn-sm.error-outline {
+    border-color: var(--red);
+  }
+  .group-error {
+    font-size: 11px;
+    color: var(--red);
+    font-weight: 500;
+    margin-top: 6px;
+    display: none;
+    align-items: center;
+    gap: 4px;
+  }
+  .group-error.show { display: flex; }
+
+  /* BOTÓN SUBMIT DESACTIVADO */
+  .btn-submit:disabled {
+    background: var(--gray-light);
+    color: var(--gray-mid);
+    cursor: not-allowed;
+  }
+  .btn-submit:disabled:hover { background: var(--gray-light); }
+
+  /* PANTALLA DE ÉXITO */
+  .success-screen {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--white);
+    z-index: 100;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    text-align: center;
+    animation: fadeIn .3s ease;
+  }
+  .success-screen.show { display: flex; }
+  .success-icon {
+    width: 64px;
+    height: 64px;
+    background: var(--success-bg);
+    border: 2px solid var(--success-border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+  }
+  .success-icon svg { color: var(--success); }
+  .success-screen h2 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--black);
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    margin-bottom: 8px;
+  }
+  .success-screen p {
+    font-size: 14px;
+    color: var(--gray-mid);
+    max-width: 380px;
+    line-height: 1.6;
+    margin-bottom: 6px;
+  }
+  .success-id {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--red);
+    letter-spacing: .08em;
+    margin: 1rem 0 1.5rem;
+    padding: 10px 20px;
+    background: var(--gray-bg);
+    border: 1px solid var(--gray-light);
+    border-radius: var(--radius-sm);
+    display: inline-block;
+  }
+  .btn-nuevo {
+    background: var(--black);
+    color: var(--white);
+    border: none;
+    padding: 13px 28px;
+    border-radius: var(--radius-pill);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    transition: background .15s;
+  }
+  .btn-nuevo:hover { background: var(--red); }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">Uso interno — Departamento Comercial</div>
+
+<!-- NAVBAR -->
+<div class="navbar">
+  <div class="navbar-logo">Jumarva</div>
+  <div class="navbar-title">Hoja de pedido</div>
+  <div class="date-badge" id="date-badge"></div>
+</div>
+
+<!-- PROGRESS BAR -->
+<div class="progress-bar" id="progress-bar">
+  <div class="progress-inner">
+    <div class="progress-steps-row">
+      <span class="step-label active" id="lbl-1">1 · Cliente</span>
+      <span class="step-label" id="lbl-2">2 · Pedido</span>
+      <span class="step-label" id="lbl-3">3 · Productos</span>
+      <span class="step-label" id="lbl-4">4 · Diseño</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- PAGE HEADER -->
+  <div class="page-header">
+    <h1>Nuevo pedido</h1>
+    <p>Rellena el formulario completo para que el equipo de diseño pueda comenzar a trabajar</p>
+  </div>
+
+  <!-- SECCIÓN 1: DATOS DEL PEDIDO -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">1</div>
+      <div class="section-title">Datos del pedido</div>
+    </div>
+
+    <div class="field">
+      <label>Cliente <span class="req">*</span></label>
+      <div class="cliente-search-wrap">
+        <input type="text" placeholder="Escribe el nombre del cliente..." id="cliente-buscador" autocomplete="off" oninput="buscarCliente(this.value)">
+        <div class="cliente-resultados" id="cliente-resultados"></div>
+      </div>
+      <span class="field-error" id="err-cliente">⚠ Selecciona o añade un cliente</span>
+
+      <div class="cliente-seleccionado" id="cliente-seleccionado" style="display:none">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <span id="cliente-seleccionado-nombre"></span>
+        <button type="button" class="btn-cambiar-cliente" onclick="cambiarCliente()">Cambiar</button>
+      </div>
+
+      <button type="button" class="btn-cliente-nuevo" id="btn-cliente-nuevo" onclick="activarClienteNuevo()">
+        ¿No encuentras el cliente? Añadir cliente nuevo
+      </button>
+    </div>
+
+    <input type="hidden" id="cliente">
+    <input type="hidden" id="comercial">
+
+    <div class="row2">
+      <div class="field">
+        <label>Fecha de entrega estimada <span class="req">*</span></label>
+        <input type="date" id="fecha-entrega">
+        <span class="field-error" id="err-fecha">⚠ Indica la fecha de entrega estimada</span>
+      </div>
+      <div class="field">
+        <label>Prioridad</label>
+        <div class="priority-group">
+          <button class="prio-btn active-normal" onclick="setPrio(this,'normal')">Normal</button>
+          <button class="prio-btn" onclick="setPrio(this,'urgente')">Urgente</button>
+          <button class="prio-btn" onclick="setPrio(this,'critico')">Crítico</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="field" id="id-field" style="display:none">
+      <label>ID de pedido</label>
+      <div class="id-display">
+        <span class="id-icon">🔖</span>
+        <span class="id-value" id="id-value">—</span>
+        <span class="id-badge">Generado automáticamente</span>
+      </div>
+      <p class="field-hint">Este identificador vincula el pedido en Sheets con su carpeta en Drive. No es editable.</p>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 2: DATOS DEL CLIENTE -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">2</div>
+      <div class="section-title">Datos del cliente</div>
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label>Representante</label>
+        <input type="text" placeholder="Nombre del representante" id="representante">
+      </div>
+      <div class="field">
+        <label>Número de cliente</label>
+        <input type="text" placeholder="Pendiente de asignar" id="numero-cliente" disabled>
+      </div>
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label>Email</label>
+        <input type="email" placeholder="cliente@email.com" id="email-cliente">
+      </div>
+      <div class="field">
+        <label>Teléfono de contacto</label>
+        <input type="tel" placeholder="600 000 000" id="telefono-cliente">
+      </div>
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label>Nombre de la tienda</label>
+        <input type="text" placeholder="Nombre comercial de la tienda" id="nombre-tienda">
+      </div>
+      <div class="field">
+        <label>Población</label>
+        <input type="text" placeholder="Ciudad o municipio" id="poblacion">
+      </div>
+    </div>
+
+    <div class="row2">
+      <div class="field" style="margin-bottom:0">
+        <label>Ruta</label>
+        <input type="text" placeholder="Ruta comercial" id="ruta">
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label>Campaña</label>
+        <input type="text" placeholder="Ej: Navidad 2026" id="campana">
+      </div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 3: TIPO DE PEDIDO -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">3</div>
+      <div class="section-title">Tipo de pedido</div>
+    </div>
+
+    <div class="field">
+      <label>¿Copia Azul? <span class="req">*</span></label>
+      <div class="chip-group" id="chips-copia-azul">
+        <div class="chip" onclick="toggleChip(this,'copia-azul')">Sí</div>
+        <div class="chip" onclick="toggleChip(this,'copia-azul')">No</div>
+      </div>
+      <p class="field-hint">Copia del pedido con precio incluido</p>
+    </div>
+
+    <div class="field-divider"></div>
+
+    <div class="field" style="margin-bottom:0">
+      <label>Muestra <span class="req">*</span></label>
+      <div class="tipo-group">
+        <button type="button" class="tipo-btn-sm" onclick="setMuestra(this,'repeticion')">
+          <span class="tipo-label-sm">Repetición</span>
+          <span class="tipo-desc-sm">Misma muestra que ya existía</span>
+        </button>
+        <button type="button" class="tipo-btn-sm" onclick="setMuestra(this,'cambio')">
+          <span class="tipo-label-sm">Cambio</span>
+          <span class="tipo-desc-sm">Muestra anterior con modificaciones</span>
+        </button>
+        <button type="button" class="tipo-btn-sm" onclick="setMuestra(this,'nuevo')">
+          <span class="tipo-label-sm">Nuevo</span>
+          <span class="tipo-desc-sm">Muestra completamente nueva</span>
+        </button>
+      </div>
+      <p class="field-hint">Caja física de prototipo para validar con el cliente</p>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 4: PRODUCTOS -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">4</div>
+      <div class="section-title">Productos</div>
+    </div>
+
+    <div id="productos-container"></div>
+
+    <button type="button" class="btn-add-producto" onclick="anadirProducto()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+      Añadir otro producto
+    </button>
+  </div>
+
+
+  <!-- SECCIÓN 5: BRIEFING DE DISEÑO + RECURSOS -->
+  <div class="section" id="seccion-5-briefing">
+    <div class="section-header">
+      <div class="section-num">5</div>
+      <div class="section-title">Briefing de diseño</div>
+    </div>
+
+    <div class="field">
+      <label>¿Qué tipo de trabajo es? <span class="req">*</span></label>
+      <div class="tipo-group">
+        <button type="button" class="tipo-btn" onclick="setTipo(this,'adaptar')">
+          <span class="tipo-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></span>
+          <div>
+            <span class="tipo-label">Adaptar diseño existente</span>
+            <span class="tipo-desc">El diseño ya está hecho, se aplica a nueva caja</span>
+          </div>
+        </button>
+        <button type="button" class="tipo-btn" onclick="setTipo(this,'modificar')">
+          <span class="tipo-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span>
+          <div>
+            <span class="tipo-label">Modificar diseño existente</span>
+            <span class="tipo-desc">El diseño base existe pero necesita cambios</span>
+          </div>
+        </button>
+        <button type="button" class="tipo-btn" onclick="setTipo(this,'nuevo')">
+          <span class="tipo-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></span>
+          <div>
+            <span class="tipo-label">Diseño nuevo</span>
+            <span class="tipo-desc">El cliente no tiene nada, partimos de cero</span>
+          </div>
+        </button>
+      </div>
+      <span class="group-error" id="err-tipo">⚠ Indica el tipo de trabajo</span>
+    </div>
+
+    <!-- BLOQUE: ADAPTAR / MODIFICAR -->
+    <div id="bloque-existente" class="bloque-condicional" style="display:none">
+      <div class="field-divider"></div>
+      <div class="field">
+        <label>Referencia al trabajo anterior <span class="req">*</span></label>
+        <input type="text" placeholder="Nº de pedido anterior, nombre del archivo o descripción para localizarlo">
+        <p class="field-hint">Escribe cualquier dato que ayude a diseño a encontrar el archivo: nombre del cliente, año, descripción del diseño...</p>
+      </div>
+      <div id="bloque-modificar" style="display:none">
+        <div class="field">
+          <label>¿Qué debe cambiar exactamente? <span class="req">*</span></label>
+          <textarea placeholder="Describe los cambios concretos: nuevo texto, diferente color, quitar elemento, añadir logo..."></textarea>
+        </div>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label>Notas adicionales</label>
+        <textarea placeholder="Cualquier detalle extra que ayude a diseño..."></textarea>
+      </div>
+    </div>
+
+    <!-- BLOQUE: DISEÑO NUEVO -->
+    <div id="bloque-nuevo" class="bloque-condicional" style="display:none">
+      <div class="field-divider"></div>
+      <div class="field">
+        <label>Descripción del nuevo diseño <span class="req">*</span></label>
+        <textarea placeholder="Describe el diseño que busca el cliente: estilo, colores, referencias, textos que debe llevar, ambiente general..."></textarea>
+      </div>
+      <div class="field">
+        <label>Lo que el cliente NO quiere</label>
+        <textarea placeholder="Colores que no le gustan, estilos a evitar, elementos descartados..."></textarea>
+      </div>
+      <div class="field-divider"></div>
+      <div class="field">
+        <label>¿El cliente tiene logotipo? <span class="req">*</span></label>
+        <div class="chip-group">
+          <div class="chip" onclick="toggleChip(this,'logo')">Sí, lo adjunto</div>
+          <div class="chip" onclick="toggleChip(this,'logo')">Sí, ya está en sistema</div>
+          <div class="chip" onclick="toggleChip(this,'logo')">No, diseño debe crearlo</div>
+          <div class="chip" onclick="toggleChip(this,'logo')">Pendiente de confirmar</div>
+        </div>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label>¿El cliente tiene tipografías definidas? <span class="req">*</span></label>
+        <div class="chip-group">
+          <div class="chip" onclick="setTipo_tipografia(this,'si')">Sí, las adjunto</div>
+          <div class="chip" onclick="setTipo_tipografia(this,'no')">No, diseño elige</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADJUNTOS -->
+    <div id="bloque-adjuntos">
+      <div class="field-divider"></div>
+      <div class="field" style="margin-bottom:0">
+        <label>Archivos adjuntos <span class="req">*</span></label>
+        <p class="field-hint" style="margin-bottom:8px">Logos, tipografías (TTF, OTF), bocetos, imágenes de referencia, PDFs</p>
+        <div class="upload-zone" id="dropzone" onclick="document.getElementById('file-input').click()">
+          <span class="upload-icon">📎</span>
+          <p>Arrastra archivos aquí o <span>haz clic para seleccionar</span></p>
+          <p style="margin-top:4px;font-size:12px;color:var(--gray-mid)">PNG, JPG, PDF, AI, EPS, TTF, OTF · Máx. 20 MB por archivo</p>
+        </div>
+        <input type="file" id="file-input" multiple accept=".png,.jpg,.jpeg,.pdf,.ai,.eps,.svg,.ttf,.otf,.woff" style="display:none" onchange="addFiles(this.files)">
+        <div class="file-list" id="file-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUBMIT -->
+  <div class="submit-area">
+    <p class="submit-hint">* Campos obligatorios · Al enviar, el equipo de diseño recibirá una notificación por email</p>
+    <button class="btn-submit" onclick="submitForm()">
+      <span class="btn-spinner"></span>
+      <span class="btn-text">Enviar briefing</span>
+    </button>
+  </div>
+  <div class="success-msg" id="success-msg">
+    ✓ Briefing enviado correctamente. El equipo de diseño ha recibido la notificación.
+  </div>
+
+</div>
+
+<script>
+// Fecha
+const now = new Date();
+const opts = { weekday:'long', year:'numeric', month:'long', day:'numeric' };
+document.getElementById('date-badge').textContent = now.toLocaleDateString('es-ES', opts);
+
+// ID automático
+function generarID(nombreCliente) {
+  if (!nombreCliente.trim()) { document.getElementById('id-field').style.display = 'none'; return; }
+  const stopWords = ['de','la','el','los','las','del','y','e','s.l.','s.a.','s.l','s.a'];
+  const palabras = nombreCliente.trim().split(/\s+/).filter(p => !stopWords.includes(p.toLowerCase())).slice(0, 3);
+  const iniciales = palabras.map(p => p[0].toUpperCase()).join('');
+  const d = new Date();
+  const fecha = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+  document.getElementById('id-value').textContent = `${iniciales}-${fecha}-001`;
+  document.getElementById('id-field').style.display = 'block';
+}
+
+// Tipo de trabajo
+function setTipo(el, tipo) {
+  document.querySelectorAll('.tipo-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+
+  // Limpiar todos los campos de texto de la sección 3 al cambiar
+  document.querySelectorAll('#bloque-existente input, #bloque-existente textarea').forEach(el => el.value = '');
+  document.querySelectorAll('#bloque-nuevo textarea').forEach(el => el.value = '');
+  document.querySelectorAll('#bloque-nuevo .chip').forEach(c => c.classList.remove('active'));
+
+  document.getElementById('bloque-existente').style.display = 'none';
+  document.getElementById('bloque-nuevo').style.display = 'none';
+  document.getElementById('bloque-modificar').style.display = 'none';
+
+  if (tipo === 'adaptar' || tipo === 'modificar') {
+    document.getElementById('bloque-existente').style.display = 'block';
+    if (tipo === 'modificar') document.getElementById('bloque-modificar').style.display = 'block';
+  } else if (tipo === 'nuevo') {
+    document.getElementById('bloque-nuevo').style.display = 'block';
+  }
+
+  document.getElementById('bloque-adjuntos').style.display = 'block';
+}
+
+function setTipo_tipografia(el) {
+  document.querySelectorAll('.chip[onclick*="setTipo_tipografia"]').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ── DATOS PARA PRODUCTOS ────────────────────────────────
+const modelos = {
+  brazo:    ['Berlín','Londres','Luxe','Niza','Orleans','París','Venecia'],
+  catering: ['Tapas','Bases'],
+  coca:     ['Orleans','Roma'],
+  mona:     ['Lyon','Prisma','Oslo'],
+  pasta:    ['Berlín','Munich','Sofia','Londres','Luxe','Niza'],
+  cubetas:  ['Lyon','París','Venecia','2 Alas','3 Alas','Cubetas 365','Automontables'],
+  turron:   ['Luxe','Niza'],
+  tarta:    ['Berlín','Hexagonales','Lyon','Milán','Munich','Niza','Orleans','París','París + Solapa','Prisma','Venecia'],
+  roscones: ['Base Niza','Base Roma','Tapa Roma','Tapa Niza'],
+};
+const sinModelo = ['bombones','individuales','trufas','cupcake','panetone'];
+
+const SERIE_OPCIONES = ['No hay serie','Coronitas','Formato 0,7','Formato 1,3','Formato 2,2'];
+
+const CARTON_OPCIONES = [
+  'Blanco','Kraft','Naturale',
+  'Blanco+Blanco','Kraft+Kraft','Naturale+Naturale',
+  'Kraft+Blanco','Blanco+Naturale','Naturale+Blanco',
+  'Kraft+Naturale','Naturale+Kraft'
+];
+
+const BARNIZADO_TIPOS = [
+  'B_Brillo','B_Brillo/Brillo','B_Mate','B_Mate/Mate',
+  'B_Acrílico','B_Brillo_Indiana','B_Alto Brillo','B_Especial'
+];
+
+const PLASTIFICADO_TIPOS = [
+  'PP_Brillo','PP_Brillo/Brillo','PP_Mate','PP_Mate/Mate','PP_Brillo ®','PP_Mate ®',
+  'Polietileno_Brillo','Polietileno_Brillo/Brillo','Polietileno_Mate','Polietileno_Mate/Mate','Polietileno_Mate/Brillo',
+  'Poliéster_Brillo','Poliéster_Brillo/Brillo','Poliéster_Brillo/Plata','Poliéster_Brillo/Oro',
+  'Poliéster_Oro','Poliéster_Oro/Oro','Poliéster_Plata','Poliéster_Plata/Plata'
+];
+
+const ENGOMADO_OPCIONES = ['No va engomado','2P','3P','4P','4P.FA','6P','Lineal (L)','Doble Baranda (DB)'];
+
+// ── SISTEMA MULTI-PRODUCTO ──────────────────────────────
+let productoCount = 0;
+
+function opcionesHTML(lista, placeholder) {
+  let html = `<option value="">${placeholder}</option>`;
+  lista.forEach(o => html += `<option value="${o}">${o}</option>`);
+  return html;
+}
+
+function crearTarjetaProducto() {
+  productoCount++;
+  const pid = productoCount;
+
+  const card = document.createElement('div');
+  card.className = 'producto-card';
+  card.id = `producto-${pid}`;
+  card.dataset.pid = pid;
+
+  card.innerHTML = `
+    <div class="producto-card-header">
+      <span class="producto-card-title">Producto ${pid}</span>
+      <button type="button" class="btn-remove-producto" onclick="eliminarProducto(${pid})" title="Eliminar producto">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>
+      </button>
+    </div>
+
+    <div class="field">
+      <label>Formato <span class="req">*</span></label>
+      <select class="p-formato-select" onchange="updateModelosProducto(${pid}, this.value)">
+        <option value="">Seleccionar formato...</option>
+        <option value="tarta">Tarta</option>
+        <option value="pasta">Pasta</option>
+        <option value="bombones">Bombones</option>
+        <option value="brazo">Brazo</option>
+        <option value="catering">Catering</option>
+        <option value="coca">Coca</option>
+        <option value="cubetas">Cubetas</option>
+        <option value="individuales">Individuales</option>
+        <option value="mona">Mona y Figura</option>
+        <option value="roscones">Roscón</option>
+        <option value="trufas">Trufas</option>
+        <option value="turron">Turrón</option>
+        <option value="cupcake">Cupcake</option>
+        <option value="panetone">Panetone</option>
+      </select>
+    </div>
+
+    <div class="modelo-panel p-modelo-panel">
+      <label>Modelo <span class="req">*</span></label>
+      <div class="modelo-grid p-modelo-grid"></div>
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label>Serie <span class="req">*</span></label>
+        <select class="p-serie-select">${opcionesHTML(SERIE_OPCIONES, 'Seleccionar serie...')}</select>
+      </div>
+      <div class="field">
+        <label>Cartón <span class="req">*</span></label>
+        <select class="p-carton-select">${opcionesHTML(CARTON_OPCIONES, 'Seleccionar cartón...')}</select>
+      </div>
+    </div>
+
+    <div class="field-divider"></div>
+
+    <div class="field">
+      <label>Número de tintas <span class="req">*</span></label>
+      <div class="tintas-group p-tintas-group">
+        <button type="button" class="tinta-btn" onclick="setNumTintasProducto(${pid}, this, 1)">1 tinta</button>
+        <button type="button" class="tinta-btn" onclick="setNumTintasProducto(${pid}, this, 2)">2 tintas</button>
+        <button type="button" class="tinta-btn" onclick="setNumTintasProducto(${pid}, this, 3)">3 tintas</button>
+        <button type="button" class="tinta-btn" onclick="setNumTintasProducto(${pid}, this, 4)">4 tintas</button>
+      </div>
+    </div>
+    <div class="p-tintas-detalle" style="display:none; margin-top:10px">
+      <div class="p-tintas-filas"></div>
+    </div>
+
+    <div class="field-divider"></div>
+
+    <div class="field">
+      <label>Medidas (mm) <span class="req">*</span></label>
+      <div class="row3">
+        <div class="field" style="margin-bottom:0"><label>Ancho</label><input type="number" placeholder="200" min="0" class="p-ancho"></div>
+        <div class="field" style="margin-bottom:0"><label>Alto</label><input type="number" placeholder="150" min="0" class="p-alto"></div>
+        <div class="field" style="margin-bottom:0"><label>Profundidad</label><input type="number" placeholder="80" min="0" class="p-profundidad"></div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Cantidad de unidades <span class="req">*</span></label>
+      <input type="number" placeholder="499" min="499" class="p-cantidad">
+      <p class="field-hint">Pedido mínimo 499 unidades</p>
+    </div>
+
+    <div class="field-divider"></div>
+
+    <!-- BARNIZADO -->
+    <div class="tecnico-bloque">
+      <span class="tecnico-bloque-label">Barnizado</span>
+      <div class="tecnico-row">
+        <div>
+          <label>Anverso <span class="req">*</span></label>
+          <div class="sino-group p-barniz-anverso">
+            <button type="button" class="sino-btn" onclick="setSiNo(this, ${pid}, 'barniz')">Sí</button>
+            <button type="button" class="sino-btn" onclick="setSiNo(this, ${pid}, 'barniz')">No</button>
+          </div>
+        </div>
+        <div>
+          <label>Reverso <span class="req">*</span></label>
+          <div class="sino-group p-barniz-reverso">
+            <button type="button" class="sino-btn" onclick="setSiNo(this, ${pid}, 'barniz')">Sí</button>
+            <button type="button" class="sino-btn" onclick="setSiNo(this, ${pid}, 'barniz')">No</button>
+          </div>
+        </div>
+      </div>
+      <div class="field p-barniz-tipo-wrap" style="display:none; margin-top:10px; margin-bottom:0">
+        <label>Tipo <span class="req">*</span></label>
+        <select class="p-barniz-tipo">${opcionesHTML(BARNIZADO_TIPOS, 'Seleccionar tipo...')}</select>
+      </div>
+    </div>
+
+    <!-- PLASTIFICADO -->
+    <div class="tecnico-bloque">
+      <span class="tecnico-bloque-label">Plastificado</span>
+      <div class="tecnico-row">
+        <div>
+          <label>Anverso <span class="req">*</span></label>
+          <div class="sino-group p-plast-anverso">
+            <button type="button" class="sino-btn" onclick="setSiNo(this, ${pid}, 'plast')">Sí</button>
+            <button type="button" class="sino-btn" onclick="setSiNo(this, ${pid}, 'plast')">No</button>
+          </div>
+        </div>
+        <div>
+          <label>Reverso <span class="req">*</span></label>
+          <div class="sino-group p-plast-reverso">
+            <button type="button" class="sino-btn" onclick="setSiNo(this, ${pid}, 'plast')">Sí</button>
+            <button type="button" class="sino-btn" onclick="setSiNo(this, ${pid}, 'plast')">No</button>
+          </div>
+        </div>
+      </div>
+      <div class="field p-plast-tipo-wrap" style="display:none; margin-top:10px; margin-bottom:0">
+        <label>Tipo <span class="req">*</span></label>
+        <select class="p-plast-tipo">${opcionesHTML(PLASTIFICADO_TIPOS, 'Seleccionar tipo...')}</select>
+      </div>
+    </div>
+
+    <!-- CONTRAENCOLADO -->
+    <div class="tecnico-bloque">
+      <span class="tecnico-bloque-label">Contraencolado</span>
+      <div class="tecnico-row" style="grid-template-columns:1fr 1fr">
+        <div>
+          <label>¿Contraencolado? <span class="req">*</span></label>
+          <div class="sino-group p-contra-sino">
+            <button type="button" class="sino-btn" onclick="setSiNo(this, ${pid}, 'contra')">Sí</button>
+            <button type="button" class="sino-btn" onclick="setSiNo(this, ${pid}, 'contra')">No</button>
+          </div>
+        </div>
+        <div class="field p-contra-espesor-wrap" style="display:none; margin-bottom:0">
+          <label>Espesor <span class="req">*</span></label>
+          <select class="p-contra-espesor">
+            <option value="">Seleccionar...</option>
+            <option value="0,7">0,7</option>
+            <option value="1,3">1,3</option>
+            <option value="2,2">2,2</option>
+            <option value="3,5">3,5</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Engomado <span class="req">*</span></label>
+      <select class="p-engomado">${opcionesHTML(ENGOMADO_OPCIONES, 'Seleccionar...')}</select>
+    </div>
+
+    <div class="field">
+      <label>Ventana <span class="req">*</span></label>
+      <div class="sino-group p-ventana">
+        <button type="button" class="sino-btn" onclick="setSiNo(this, ${pid}, 'ventana')">Sí</button>
+        <button type="button" class="sino-btn" onclick="setSiNo(this, ${pid}, 'ventana')">No</button>
+      </div>
+    </div>
+
+    <div class="field" style="margin-bottom:0">
+      <label>Observaciones</label>
+      <textarea placeholder="Cualquier detalle adicional sobre este producto..." class="p-observaciones"></textarea>
+    </div>
+  `;
+
+  return card;
+}
+
+function anadirProducto() {
+  const container = document.getElementById('productos-container');
+  const card = crearTarjetaProducto();
+  container.appendChild(card);
+  card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function eliminarProducto(pid) {
+  const card = document.getElementById(`producto-${pid}`);
+  if (!card) return;
+  const totalCards = document.querySelectorAll('.producto-card').length;
+  if (totalCards <= 1) {
+    alert('Debe haber al menos un producto en el pedido.');
+    return;
+  }
+  card.remove();
+  renumerarProductos();
+}
+
+function renumerarProductos() {
+  document.querySelectorAll('.producto-card').forEach((card, i) => {
+    card.querySelector('.producto-card-title').textContent = `Producto ${i + 1}`;
+  });
+}
+
+// Modelos por producto
+function updateModelosProducto(pid, formato) {
+  const card = document.getElementById(`producto-${pid}`);
+  const panel = card.querySelector('.p-modelo-panel');
+  const grid = card.querySelector('.p-modelo-grid');
+  grid.innerHTML = '';
+  if (!formato || sinModelo.includes(formato)) { panel.classList.remove('visible'); return; }
+  const lista = modelos[formato] || [];
+  if (!lista.length) { panel.classList.remove('visible'); return; }
+  lista.forEach(nombre => {
+    const btn = document.createElement('button');
+    btn.className = 'modelo-btn';
+    btn.type = 'button';
+    btn.innerHTML = `<span class="modelo-icon">📦</span><span class="modelo-name">${nombre}</span>`;
+    btn.onclick = function() {
+      grid.querySelectorAll('.modelo-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      grid.classList.remove('error');
+    };
+    grid.appendChild(btn);
+  });
+  panel.classList.add('visible');
+}
+
+// Tintas por producto
+function setNumTintasProducto(pid, el, num) {
+  const card = document.getElementById(`producto-${pid}`);
+  card.querySelectorAll('.p-tintas-group .tinta-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  const filas = card.querySelector('.p-tintas-filas');
+  filas.innerHTML = '';
+  for (let i = 1; i <= num; i++) filas.appendChild(crearFilaTinta(i));
+  card.querySelector('.p-tintas-detalle').style.display = 'block';
+}
+
+function crearFilaTinta(n) {
+  const fila = document.createElement('div');
+  fila.className = 'tinta-fila';
+  const num = document.createElement('div');
+  num.className = 'tinta-num';
+  num.textContent = n;
+  const tipoGroup = document.createElement('div');
+  tipoGroup.className = 'tinta-tipo-group';
+  const ref = document.createElement('input');
+  ref.type = 'text';
+  ref.className = 'tinta-ref';
+  ref.placeholder = 'Referencia (opcional)';
+  ['CMYK','Pantone'].forEach(tipo => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'tinta-tipo-btn';
+    btn.textContent = tipo;
+    btn.onclick = function() {
+      tipoGroup.querySelectorAll('.tinta-tipo-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      ref.placeholder = tipo === 'Pantone' ? 'Ej: Rosa, Azul marino, Dorado...' : 'Referencia (opcional)';
+      tipo === 'Pantone' ? ref.classList.add('pantone-active') : ref.classList.remove('pantone-active');
+    };
+    tipoGroup.appendChild(btn);
+  });
+  fila.appendChild(num);
+  fila.appendChild(tipoGroup);
+  fila.appendChild(ref);
+  return fila;
+}
+
+// Sí/No genérico — maneja barniz, plast, contra, ventana + mostrar/ocultar tipo
+function setSiNo(el, pid, grupo) {
+  el.closest('.sino-group').querySelectorAll('.sino-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  el.closest('.sino-group').classList.remove('error');
+
+  const card = document.getElementById(`producto-${pid}`);
+  const valor = el.textContent.trim();
+
+  if (grupo === 'barniz') {
+    const anversoSi = card.querySelector('.p-barniz-anverso .sino-btn.active')?.textContent.trim() === 'Sí';
+    const reversoSi = card.querySelector('.p-barniz-reverso .sino-btn.active')?.textContent.trim() === 'Sí';
+    card.querySelector('.p-barniz-tipo-wrap').style.display = (anversoSi || reversoSi) ? 'block' : 'none';
+  }
+  if (grupo === 'plast') {
+    const anversoSi = card.querySelector('.p-plast-anverso .sino-btn.active')?.textContent.trim() === 'Sí';
+    const reversoSi = card.querySelector('.p-plast-reverso .sino-btn.active')?.textContent.trim() === 'Sí';
+    card.querySelector('.p-plast-tipo-wrap').style.display = (anversoSi || reversoSi) ? 'block' : 'none';
+  }
+  if (grupo === 'contra') {
+    card.querySelector('.p-contra-espesor-wrap').style.display = (valor === 'Sí') ? 'block' : 'none';
+  }
+}
+
+// Muestra (Repetición / Cambio / Nuevo)
+function setMuestra(el, tipo) {
+  el.closest('.tipo-group').querySelectorAll('.tipo-btn-sm').forEach(b => {
+    b.classList.remove('active');
+    b.classList.remove('error-outline');
+  });
+  el.classList.add('active');
+
+  const seccion5 = document.getElementById('seccion-5-briefing');
+
+  if (tipo === 'repeticion') {
+    seccion5.style.display = 'none';
+  } else {
+    seccion5.style.display = 'block';
+  }
+}
+
+// Crear el primer producto al cargar la página
+anadirProducto();
+
+// Prioridad
+function setPrio(el, tipo) {
+  document.querySelectorAll('.prio-btn').forEach(b => b.classList.remove('active-normal','active-urgente','active-critico'));
+  el.classList.add('active-' + tipo);
+}
+
+// Chips
+function toggleChip(el, grupo) {
+  if (grupo) {
+    el.closest('.chip-group').querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    el.closest('.chip-group').classList.remove('error');
+  }
+  el.classList.toggle('active');
+}
+
+// Archivos
+let files = [];
+function addFiles(fl) {
+  Array.from(fl).forEach(f => { if (!files.find(x => x.name === f.name)) files.push(f); });
+  if (files.length > 0) document.getElementById('dropzone').classList.remove('error');
+  renderFiles();
+}
+function renderFiles() {
+  const list = document.getElementById('file-list');
+  list.innerHTML = '';
+  files.forEach((f, i) => {
+    const kb = f.size / 1024;
+    const size = kb > 1024 ? (kb/1024).toFixed(1)+' MB' : Math.round(kb)+' KB';
+    const ext = f.name.split('.').pop().toLowerCase();
+    const icon = ['pdf'].includes(ext) ? '📄' : ['ai','eps','svg'].includes(ext) ? '✏️' : '🖼';
+    const div = document.createElement('div');
+    div.className = 'file-item';
+    div.innerHTML = `<span>${icon}</span><span class="fname">${f.name}</span><span class="fsize">${size}</span><span class="rm" onclick="removeFile(${i})">✕</span>`;
+    list.appendChild(div);
+  });
+}
+function removeFile(i) { files.splice(i, 1); renderFiles(); }
+
+const dz = document.getElementById('dropzone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.style.borderColor = '#E8201A'; });
+dz.addEventListener('dragleave', () => { dz.style.borderColor = ''; });
+dz.addEventListener('drop', e => { e.preventDefault(); dz.style.borderColor = ''; addFiles(e.dataTransfer.files); });
+
+
+// ── PROGRESS INDICATOR ──────────────────────────────
+function updateProgress() {
+  const secciones = document.querySelectorAll('.section');
+  const sec1 = secciones[0]; // Datos del pedido
+  const sec2 = secciones[2]; // Tipo de pedido (cliente+tipo cuentan como "Pedido")
+  const sec3 = secciones[3]; // Productos
+  const sec4 = secciones[4]; // Briefing diseño
+  const scrollY = window.scrollY + window.innerHeight * 0.4;
+
+  const s1top = sec1 ? sec1.offsetTop : 0;
+  const s2top = sec2 ? sec2.offsetTop : 9999;
+  const s3top = sec3 ? sec3.offsetTop : 9999;
+  const s4top = sec4 ? sec4.offsetTop : 9999;
+
+  const s1done = document.getElementById('cliente').value.trim() &&
+                 document.getElementById('comercial').value &&
+                 document.getElementById('fecha-entrega').value;
+
+  const s2done = document.querySelector('#chips-copia-azul .chip.active') &&
+                 document.querySelector('.tipo-btn-sm.active');
+
+  const primerProducto = document.querySelector('.producto-card');
+  const s3done = primerProducto &&
+                 primerProducto.querySelector('.p-formato-select').value &&
+                 primerProducto.querySelector('.p-carton-select').value &&
+                 primerProducto.querySelector('.tinta-btn.active');
+
+  const s4done = document.querySelector('.tipo-btn.active');
+
+  let activeStep = 1;
+  if (scrollY >= s4top) activeStep = 4;
+  else if (scrollY >= s3top) activeStep = 3;
+  else if (scrollY >= s2top) activeStep = 2;
+
+  [1,2,3,4].forEach(n => {
+    const lbl = document.getElementById('lbl-' + n);
+    if (!lbl) return;
+    const isDone = (n === 1 && s1done) || (n === 2 && s2done) || (n === 3 && s3done) || (n === 4 && s4done);
+    const isActive = n === activeStep && !isDone;
+    lbl.className = 'step-label' + (isDone ? ' done' : isActive ? ' active' : '');
+  });
+
+  const fill = document.getElementById('progress-fill');
+  const pct = activeStep === 4 ? 100 : activeStep === 3 ? 66 : activeStep === 2 ? 33 : 0;
+  fill.style.width = pct + '%';
+  fill.style.background = activeStep === 4 ? 'var(--success)' : 'var(--red)';
+}
+
+window.addEventListener('scroll', updateProgress, { passive: true });
+['cliente','comercial','fecha-entrega'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('change', updateProgress);
+  if (el) el.addEventListener('input', updateProgress);
+});
+document.addEventListener('click', function(e) {
+  if (e.target.closest('.chip, .tinta-btn, .tipo-btn, .tipo-btn-sm, .modelo-btn, .sino-btn')) {
+    setTimeout(updateProgress, 50);
+  }
+});
+updateProgress();
+
+// ── VALIDACIÓN ──────────────────────────────────────────
+function showErr(id, show) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('show', show);
+}
+function markInput(id, error) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('error', error);
+}
+
+// Limpiar error al interactuar
+['cliente','comercial','fecha-entrega'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('change', () => { el.classList.remove('error'); const err = document.getElementById('err-' + id.replace('fecha-entrega','fecha')); if(err) err.classList.remove('show'); });
+  if (el) el.addEventListener('input', () => { el.classList.remove('error'); const err = document.getElementById('err-' + id.replace('fecha-entrega','fecha')); if(err) err.classList.remove('show'); });
+});
+
+// Limpieza global de error para cualquier input/select/textarea, incluso los generados dinámicamente
+document.addEventListener('input', function(e) {
+  if (e.target.matches('input, select, textarea')) {
+    e.target.classList.remove('error');
+  }
+});
+document.addEventListener('change', function(e) {
+  if (e.target.matches('input, select, textarea')) {
+    e.target.classList.remove('error');
+  }
+});
+
+function validarFormulario() {
+  let ok = true;
+
+  // ── SECCIÓN 1: Cliente, fecha ──
+  const cliente = document.getElementById('cliente').value.trim();
+  document.getElementById('cliente-buscador').classList.toggle('error', !cliente);
+  showErr('err-cliente', !cliente);
+  if (!cliente) ok = false;
+
+  const fecha = document.getElementById('fecha-entrega').value;
+  markInput('fecha-entrega', !fecha); showErr('err-fecha', !fecha);
+  if (!fecha) ok = false;
+
+  // ── SECCIÓN 2: Datos del cliente — ningún campo obligatorio ──
+  // Toda la sección queda opcional, se autocompleta desde la base de datos cuando existe
+
+  // ── SECCIÓN 3: Tipo de pedido ──
+  const copiaAzulOk = !!document.querySelector('#chips-copia-azul .chip.active');
+  document.getElementById('chips-copia-azul').classList.toggle('error', !copiaAzulOk);
+  if (!copiaAzulOk) ok = false;
+
+  const muestraOk = !!document.querySelector('.tipo-btn-sm.active');
+  if (!muestraOk) ok = false;
+  document.querySelectorAll('.tipo-btn-sm').forEach(b => b.classList.toggle('error-outline', !muestraOk));
+
+  // ── SECCIÓN 4: Productos — todos los campos obligatorios ──
+  const cards = document.querySelectorAll('.producto-card');
+  cards.forEach(card => {
+    const formatoSel  = card.querySelector('.p-formato-select');
+    const serieSel    = card.querySelector('.p-serie-select');
+    const cartonSel   = card.querySelector('.p-carton-select');
+    const tintaBtn    = card.querySelector('.tinta-btn.active');
+    const ancho       = card.querySelector('.p-ancho');
+    const alto        = card.querySelector('.p-alto');
+    const profundidad = card.querySelector('.p-profundidad');
+    const cantidadInp = card.querySelector('.p-cantidad');
+    const engomadoSel = card.querySelector('.p-engomado');
+
+    // Formato
+    const formatoOk = !!formatoSel.value;
+    formatoSel.classList.toggle('error', !formatoOk);
+    if (!formatoOk) ok = false;
+
+    // Modelo — obligatorio solo si el panel está visible (hay modelos disponibles para ese formato)
+    const modeloPanel = card.querySelector('.p-modelo-panel');
+    if (modeloPanel.classList.contains('visible')) {
+      const modeloOk = !!card.querySelector('.modelo-btn.active');
+      card.querySelector('.p-modelo-grid').classList.toggle('error', !modeloOk);
+      if (!modeloOk) ok = false;
+    }
+
+    // Serie
+    const serieOk = !!serieSel.value;
+    serieSel.classList.toggle('error', !serieOk);
+    if (!serieOk) ok = false;
+
+    // Cartón
+    const cartonOk = !!cartonSel.value;
+    cartonSel.classList.toggle('error', !cartonOk);
+    if (!cartonOk) ok = false;
+
+    // Tintas
+    const tintasOk = !!tintaBtn;
+    card.querySelector('.p-tintas-group').classList.toggle('error', !tintasOk);
+    if (!tintasOk) ok = false;
+
+    // Medidas
+    [ancho, alto, profundidad].forEach(input => {
+      const medidaOk = !!input.value && parseInt(input.value) > 0;
+      input.classList.toggle('error', !medidaOk);
+      if (!medidaOk) ok = false;
+    });
+
+    // Cantidad mínima 500
+    const cantidad = parseInt(cantidadInp.value || 0);
+    const cantidadOk = cantidad >= 499;
+    cantidadInp.classList.toggle('error', !cantidadOk);
+    if (!cantidadOk) ok = false;
+
+    // Barnizado: Anverso y Reverso deben tener Sí/No seleccionado
+    const barnizAnversoOk = !!card.querySelector('.p-barniz-anverso .sino-btn.active');
+    const barnizReversoOk = !!card.querySelector('.p-barniz-reverso .sino-btn.active');
+    card.querySelector('.p-barniz-anverso').classList.toggle('error', !barnizAnversoOk);
+    card.querySelector('.p-barniz-reverso').classList.toggle('error', !barnizReversoOk);
+    if (!barnizAnversoOk || !barnizReversoOk) ok = false;
+
+    // Si barnizado anverso o reverso es Sí, el Tipo es obligatorio
+    const barnizSi = card.querySelector('.p-barniz-anverso .sino-btn.active')?.textContent.trim() === 'Sí' ||
+                      card.querySelector('.p-barniz-reverso .sino-btn.active')?.textContent.trim() === 'Sí';
+    if (barnizSi) {
+      const tipoOk = !!card.querySelector('.p-barniz-tipo').value;
+      card.querySelector('.p-barniz-tipo').classList.toggle('error', !tipoOk);
+      if (!tipoOk) ok = false;
+    }
+
+    // Plastificado: igual que barnizado
+    const plastAnversoOk = !!card.querySelector('.p-plast-anverso .sino-btn.active');
+    const plastReversoOk = !!card.querySelector('.p-plast-reverso .sino-btn.active');
+    card.querySelector('.p-plast-anverso').classList.toggle('error', !plastAnversoOk);
+    card.querySelector('.p-plast-reverso').classList.toggle('error', !plastReversoOk);
+    if (!plastAnversoOk || !plastReversoOk) ok = false;
+
+    const plastSi = card.querySelector('.p-plast-anverso .sino-btn.active')?.textContent.trim() === 'Sí' ||
+                     card.querySelector('.p-plast-reverso .sino-btn.active')?.textContent.trim() === 'Sí';
+    if (plastSi) {
+      const tipoOk = !!card.querySelector('.p-plast-tipo').value;
+      card.querySelector('.p-plast-tipo').classList.toggle('error', !tipoOk);
+      if (!tipoOk) ok = false;
+    }
+
+    // Contraencolado: Sí/No obligatorio
+    const contraOk = !!card.querySelector('.p-contra-sino .sino-btn.active');
+    card.querySelector('.p-contra-sino').classList.toggle('error', !contraOk);
+    if (!contraOk) ok = false;
+
+    // Si contraencolado es Sí, Espesor obligatorio
+    const contraSi = card.querySelector('.p-contra-sino .sino-btn.active')?.textContent.trim() === 'Sí';
+    if (contraSi) {
+      const espesorOk = !!card.querySelector('.p-contra-espesor').value;
+      card.querySelector('.p-contra-espesor').classList.toggle('error', !espesorOk);
+      if (!espesorOk) ok = false;
+    }
+
+    // Engomado
+    const engomadoOk = !!engomadoSel.value;
+    engomadoSel.classList.toggle('error', !engomadoOk);
+    if (!engomadoOk) ok = false;
+
+    // Ventana
+    const ventanaOk = !!card.querySelector('.p-ventana .sino-btn.active');
+    card.querySelector('.p-ventana').classList.toggle('error', !ventanaOk);
+    if (!ventanaOk) ok = false;
+
+    // Observaciones — opcional, sin validación
+  });
+
+  // ── SECCIÓN 5: Briefing de diseño — solo obligatoria si es visible (Muestra ≠ Repetición) ──
+  const seccion5Visible = document.getElementById('seccion-5-briefing').style.display !== 'none';
+
+  if (seccion5Visible) {
+    const tipoTrabajoOk = !!document.querySelector('.tipo-btn.active');
+    showErr('err-tipo', !tipoTrabajoOk);
+    if (!tipoTrabajoOk) ok = false;
+
+    if (document.getElementById('bloque-existente').style.display === 'block') {
+      const refInput = document.querySelector('#bloque-existente input[type=text]');
+      const refOk = !!refInput.value.trim();
+      refInput.classList.toggle('error', !refOk);
+      if (!refOk) ok = false;
+
+      if (document.getElementById('bloque-modificar').style.display === 'block') {
+        const cambioTextarea = document.querySelector('#bloque-modificar textarea');
+        const cambioOk = !!cambioTextarea.value.trim();
+        cambioTextarea.classList.toggle('error', !cambioOk);
+        if (!cambioOk) ok = false;
+      }
+
+      // Notas adicionales — opcional, sin validación
+    }
+
+    if (document.getElementById('bloque-nuevo').style.display === 'block') {
+      const descripcionTextarea = document.querySelector('#bloque-nuevo textarea:first-of-type');
+      const descripcionOk = !!descripcionTextarea.value.trim();
+      descripcionTextarea.classList.toggle('error', !descripcionOk);
+      if (!descripcionOk) ok = false;
+
+      const logoOk = !!document.querySelector('#bloque-nuevo .chip-group .chip.active');
+      if (!logoOk) ok = false;
+
+      const tipoOk = !!document.querySelector('.chip[onclick*="tipografia"].active');
+      if (!tipoOk) ok = false;
+    }
+
+    // Adjuntos: al menos un archivo obligatorio
+    const adjuntosOk = files.length > 0;
+    document.getElementById('dropzone').classList.toggle('error', !adjuntosOk);
+    if (!adjuntosOk) ok = false;
+  }
+
+  // Scroll al primer error
+  if (!ok) {
+    const firstErr = document.querySelector('.error, .field-error.show, .group-error.show');
+    if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  return ok;
+}
+
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby9_dk4qXbr23-ddH6-alhsmhmRlemFVdTYtBXPmeyFV3Rz3jcZ9RvZ_sg-u2C_hDbYsg/exec';
+
+// ── CARGAR BASE DE DATOS DE CLIENTES ────────────────────
+let clientesDB = [];
+let clienteNuevoActivo = false;
+
+async function cargarClientes() {
+  try {
+    const resp = await fetch(APPS_SCRIPT_URL);
+    const json = await resp.json();
+    clientesDB = json.clientes || [];
+  } catch (err) {
+    console.error('Error cargando base de datos de clientes:', err);
+  }
+}
+cargarClientes();
+
+// ── BUSCADOR DE CLIENTE ──────────────────────────────────
+function buscarCliente(query) {
+  const resultados = document.getElementById('cliente-resultados');
+  const q = query.trim().toLowerCase();
+
+  document.getElementById('cliente').value = '';
+
+  if (!q) { resultados.classList.remove('show'); resultados.innerHTML = ''; return; }
+
+  const coincidencias = clientesDB.filter(c =>
+    (c.cliente && c.cliente.toLowerCase().includes(q)) ||
+    (c.nombreComercial && c.nombreComercial.toLowerCase().includes(q))
+  ).slice(0, 15);
+
+  resultados.innerHTML = '';
+
+  if (coincidencias.length === 0) {
+    resultados.innerHTML = '<div class="cliente-resultado-vacio">Sin resultados — usa "Añadir cliente nuevo" abajo</div>';
+    resultados.classList.add('show');
+    return;
+  }
+
+  coincidencias.forEach(c => {
+    const item = document.createElement('div');
+    item.className = 'cliente-resultado-item';
+    item.innerHTML = `
+      <div class="cliente-resultado-nombre">${c.cliente}</div>
+      <div class="cliente-resultado-detalle">${c.nombreComercial || ''} ${c.poblacion ? '· ' + c.poblacion : ''}</div>
+    `;
+    item.onclick = () => seleccionarCliente(c);
+    resultados.appendChild(item);
+  });
+
+  resultados.classList.add('show');
+}
+
+function seleccionarCliente(c) {
+  document.getElementById('cliente').value = c.cliente;
+  document.getElementById('cliente-buscador').value = '';
+  document.getElementById('cliente-buscador').style.display = 'none';
+  document.getElementById('cliente-resultados').classList.remove('show');
+  document.getElementById('cliente-resultados').innerHTML = '';
+
+  document.getElementById('cliente-seleccionado-nombre').textContent = c.cliente;
+  document.getElementById('cliente-seleccionado').style.display = 'flex';
+  document.getElementById('btn-cliente-nuevo').style.display = 'none';
+
+  // Autocompletar Sección 2
+  document.getElementById('representante').value = c.nombreComercial || c.cliente || '';
+  document.getElementById('comercial').value = c.nombreComercial || c.cliente || '';
+  document.getElementById('numero-cliente').value = c.numeroCliente || '';
+  document.getElementById('email-cliente').value = c.email || '';
+  document.getElementById('telefono-cliente').value = c.telefonoMovil || c.telefonoFijo || '';
+  document.getElementById('nombre-tienda').value = c.nombreComercial || '';
+  document.getElementById('poblacion').value = c.poblacion || '';
+
+  document.getElementById('cliente').classList.remove('error');
+  document.getElementById('cliente-buscador').classList.remove('error');
+  showErr('err-cliente', false);
+  generarID(c.cliente);
+  updateProgress();
+}
+
+function cambiarCliente() {
+  document.getElementById('cliente').value = '';
+  document.getElementById('cliente-seleccionado').style.display = 'none';
+  document.getElementById('cliente-buscador').style.display = 'block';
+  document.getElementById('cliente-buscador').value = '';
+  document.getElementById('cliente-buscador').focus();
+  document.getElementById('btn-cliente-nuevo').style.display = 'block';
+
+  // Limpiar Sección 2 (datos autocompletados)
+  ['representante','numero-cliente','email-cliente','telefono-cliente','nombre-tienda','poblacion'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('comercial').value = '';
+  clienteNuevoActivo = false;
+  document.getElementById('btn-cliente-nuevo').classList.remove('activo');
+  document.getElementById('btn-cliente-nuevo').textContent = '¿No encuentras el cliente? Añadir cliente nuevo';
+}
+
+function activarClienteNuevo() {
+  clienteNuevoActivo = true;
+  const buscador = document.getElementById('cliente-buscador');
+  const btn = document.getElementById('btn-cliente-nuevo');
+
+  buscador.placeholder = 'Escribe el nombre del cliente nuevo...';
+  buscador.value = '';
+  buscador.focus();
+  document.getElementById('cliente-resultados').classList.remove('show');
+  btn.classList.add('activo');
+  btn.textContent = 'Modo cliente nuevo activado — escribe el nombre arriba';
+
+  // Habilitar edición libre de Sección 2
+  ['representante','email-cliente','telefono-cliente','nombre-tienda','poblacion'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('numero-cliente').value = '';
+  document.getElementById('numero-cliente').placeholder = 'Pendiente de asignar';
+
+  // Al escribir en modo cliente nuevo, usar ese texto directamente como cliente
+  buscador.oninput = function() {
+    document.getElementById('cliente').value = this.value.trim();
+    document.getElementById('comercial').value = document.getElementById('representante').value.trim();
+    generarID(this.value.trim());
+    updateProgress();
+  };
+
+  document.getElementById('representante').addEventListener('input', function() {
+    if (clienteNuevoActivo) document.getElementById('comercial').value = this.value.trim();
+  });
+}
+
+// ── RECOGER DATOS DE UN PRODUCTO (tarjeta) ──────────────
+function recogerDatosProducto(card) {
+  const filasTinta = card.querySelectorAll('.tinta-fila');
+  const detalleTintas = Array.from(filasTinta).map((fila, i) => {
+    const tipo = fila.querySelector('.tinta-tipo-btn.active')?.textContent || '—';
+    const ref  = fila.querySelector('.tinta-ref')?.value || '';
+    return `Tinta ${i+1}: ${tipo}${ref ? ' · ' + ref : ''}`;
+  }).join(' | ');
+
+  const barnizAnverso = card.querySelector('.p-barniz-anverso .sino-btn.active')?.textContent.trim() || 'No';
+  const barnizReverso = card.querySelector('.p-barniz-reverso .sino-btn.active')?.textContent.trim() || 'No';
+  const plastAnverso  = card.querySelector('.p-plast-anverso .sino-btn.active')?.textContent.trim() || 'No';
+  const plastReverso  = card.querySelector('.p-plast-reverso .sino-btn.active')?.textContent.trim() || 'No';
+  const contraSiNo    = card.querySelector('.p-contra-sino .sino-btn.active')?.textContent.trim() || 'No';
+  const ventana       = card.querySelector('.p-ventana .sino-btn.active')?.textContent.trim() || 'No';
+
+  return {
+    formato:           card.querySelector('.p-formato-select')?.value || '',
+    modelo:            card.querySelector('.modelo-btn.active .modelo-name')?.textContent || '',
+    serie:             card.querySelector('.p-serie-select')?.value || '',
+    carton:            card.querySelector('.p-carton-select')?.value || '',
+    tintas:            card.querySelector('.tinta-btn.active')?.textContent || '',
+    detalleTintas:     detalleTintas,
+    ancho:             card.querySelector('.p-ancho')?.value || '',
+    alto:              card.querySelector('.p-alto')?.value || '',
+    profundidad:       card.querySelector('.p-profundidad')?.value || '',
+    cantidad:          card.querySelector('.p-cantidad')?.value || '',
+    barnizadoAnverso:  barnizAnverso,
+    barnizadoReverso:  barnizReverso,
+    barnizadoTipo:     card.querySelector('.p-barniz-tipo')?.value || '',
+    plastificadoAnverso: plastAnverso,
+    plastificadoReverso: plastReverso,
+    plastificadoTipo:  card.querySelector('.p-plast-tipo')?.value || '',
+    contraencolado:    contraSiNo,
+    espesor:           card.querySelector('.p-contra-espesor')?.value || '',
+    engomado:          card.querySelector('.p-engomado')?.value || '',
+    ventana:           ventana,
+    observaciones:     card.querySelector('.p-observaciones')?.value || '',
+  };
+}
+
+// ── RECOGER DATOS DEL FORMULARIO COMPLETO ───────────────
+function recogerDatos() {
+  const productos = Array.from(document.querySelectorAll('.producto-card')).map(recogerDatosProducto);
+
+  return {
+    // Sección 1 — Pedido
+    cliente:            document.getElementById('cliente').value.trim(),
+    comercial:          document.getElementById('comercial').value,
+    fechaEntrega:       document.getElementById('fecha-entrega').value,
+    prioridad:          document.querySelector('.prio-btn[class*="active"]')?.textContent || 'Normal',
+
+    // Sección 2 — Datos del cliente
+    representante:      document.getElementById('representante')?.value || '',
+    email:               document.getElementById('email-cliente')?.value || '',
+    telefono:            document.getElementById('telefono-cliente')?.value || '',
+    numeroCliente:       document.getElementById('numero-cliente')?.value || '',
+    nombreTienda:        document.getElementById('nombre-tienda')?.value || '',
+    poblacion:           document.getElementById('poblacion')?.value || '',
+    ruta:                document.getElementById('ruta')?.value || '',
+    campana:             document.getElementById('campana')?.value || '',
+
+    // Sección 3 — Tipo de pedido
+    copiaAzul:           document.querySelector('#chips-copia-azul .chip.active')?.textContent || '',
+    muestra:             document.querySelector('.tipo-btn-sm.active .tipo-label-sm')?.textContent || '',
+
+    // Sección 4 — Productos (array)
+    productos:           productos,
+
+    // Sección 5 — Briefing de diseño
+    tipoTrabajo:        document.querySelector('.tipo-btn.active .tipo-label')?.textContent || '',
+    referenciaAnterior: document.querySelector('#bloque-existente input[type=text]')?.value || '',
+    queCambiar:         document.querySelector('#bloque-modificar textarea')?.value || '',
+    descripcionDiseno:  document.querySelector('#bloque-nuevo textarea:first-of-type')?.value || '',
+    noQuiere:           document.querySelector('#bloque-nuevo textarea:last-of-type')?.value || '',
+    logotipo:           document.querySelector('#bloque-nuevo .chip-group .chip.active')?.textContent || '',
+    tipografias:        document.querySelector('.chip[onclick*="tipografia"].active')?.textContent || '',
+    notas:              document.querySelector('#bloque-existente textarea:last-of-type')?.value || '',
+  };
+}
+
+// ── CONVERTIR ARCHIVOS A BASE64 ─────────────────────────
+// ── COMPRIMIR IMÁGENES ANTES DE ENVIAR (acelera el envío en móvil) ──
+function comprimirImagen(file, maxAncho = 1600, calidad = 0.75) {
+  return new Promise((resolve) => {
+    // Solo comprimir imágenes JPG/PNG — el resto de archivos se deja igual
+    if (!file.type.startsWith('image/') || file.type === 'image/svg+xml') {
+      resolve(file);
+      return;
+    }
+
+    const img = new Image();
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      img.onload = () => {
+        let { width, height } = img;
+
+        if (width > maxAncho) {
+          height = Math.round((height * maxAncho) / width);
+          width = maxAncho;
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob((blob) => {
+          if (!blob || blob.size >= file.size) {
+            // Si la compresión no ayuda, mantener el original
+            resolve(file);
+            return;
+          }
+          const archivoComprimido = new File([blob], file.name, { type: 'image/jpeg' });
+          resolve(archivoComprimido);
+        }, 'image/jpeg', calidad);
+      };
+      img.onerror = () => resolve(file); // si falla, usar el original
+      img.src = e.target.result;
+    };
+    reader.onerror = () => resolve(file);
+    reader.readAsDataURL(file);
+  });
+}
+
+// ── CONVERTIR ARCHIVOS A BASE64 (con compresión previa de imágenes) ──
+async function archivosABase64() {
+  const resultado = [];
+  for (const file of files) {
+    const archivoFinal = await comprimirImagen(file);
+    const base64 = await new Promise((res, rej) => {
+      const reader = new FileReader();
+      reader.onload  = () => res(reader.result.split(',')[1]);
+      reader.onerror = rej;
+      reader.readAsDataURL(archivoFinal);
+    });
+    resultado.push({ nombre: archivoFinal.name, tipo: archivoFinal.type, data: base64 });
+  }
+  return resultado;
+}
+
+// ── ENVIAR A APPS SCRIPT ────────────────────────────────
+async function submitForm() {
+  if (!validarFormulario()) return;
+
+  // Estado de carga en el botón
+  const btn = document.querySelector('.btn-submit');
+  const btnText = btn.querySelector('.btn-text');
+  btn.disabled = true;
+  btn.classList.add('loading');
+
+  try {
+    const datos = recogerDatos();
+
+    if (files.length > 0) {
+      btnText.textContent = 'Optimizando archivos...';
+    } else {
+      btnText.textContent = 'Enviando...';
+    }
+    const archivos = await archivosABase64();
+    datos.archivos = archivos;
+
+    btnText.textContent = 'Enviando briefing...';
+
+    const resp = await fetch(APPS_SCRIPT_URL, {
+      method:  'POST',
+      body:    JSON.stringify(datos),
+    });
+
+    const json = await resp.json();
+
+    if (json.ok) {
+      const idPedido = json.id || document.getElementById('id-value').textContent || '—';
+      document.getElementById('success-id').textContent = idPedido;
+      document.getElementById('success-screen').classList.add('show');
+      document.body.style.overflow = 'hidden';
+
+      // Avisar si algún archivo no se pudo guardar correctamente
+      if (json.archivosFallidos && json.archivosFallidos.length > 0) {
+        setTimeout(() => {
+          alert(
+            '⚠ El pedido se envió correctamente, pero estos archivos no se pudieron guardar:\n\n' +
+            json.archivosFallidos.join('\n') +
+            '\n\nVuelve a enviarlos por email a proyectos@jumarva.com o dis.grafico@jumarva.com con el ID del pedido: ' + idPedido
+          );
+        }, 400);
+      }
+    } else {
+      throw new Error(json.error || 'Error desconocido');
+    }
+
+  } catch (err) {
+    alert('Error al enviar el briefing. Comprueba tu conexión e inténtalo de nuevo.\n\nDetalle: ' + err.message);
+  } finally {
+    btn.classList.remove('loading');
+    btnText.textContent = 'Enviar briefing';
+    btn.disabled = false;
+  }
+}
+
+function nuevoPedido() {
+  document.getElementById('success-screen').classList.remove('show');
+  document.body.style.overflow = '';
+
+  // Sección 1 — Pedido
+  document.getElementById('cliente').value = '';
+  document.getElementById('comercial').value = '';
+  document.getElementById('fecha-entrega').value = '';
+  document.getElementById('id-field').style.display = 'none';
+  document.getElementById('id-value').textContent = '—';
+  document.querySelectorAll('.prio-btn').forEach(b => b.classList.remove('active-normal','active-urgente','active-critico'));
+  document.querySelector('.prio-btn').classList.add('active-normal');
+
+  // Reset buscador de cliente
+  document.getElementById('cliente-buscador').style.display = 'block';
+  document.getElementById('cliente-buscador').value = '';
+  document.getElementById('cliente-buscador').placeholder = 'Escribe el nombre del cliente...';
+  document.getElementById('cliente-buscador').classList.remove('error');
+  document.getElementById('cliente-buscador').oninput = function() { buscarCliente(this.value); };
+  document.getElementById('cliente-resultados').classList.remove('show');
+  document.getElementById('cliente-resultados').innerHTML = '';
+  document.getElementById('cliente-seleccionado').style.display = 'none';
+  document.getElementById('btn-cliente-nuevo').style.display = 'block';
+  document.getElementById('btn-cliente-nuevo').classList.remove('activo');
+  document.getElementById('btn-cliente-nuevo').textContent = '¿No encuentras el cliente? Añadir cliente nuevo';
+  clienteNuevoActivo = false;
+
+  // Sección 2 — Datos del cliente
+  ['representante','email-cliente','telefono-cliente','numero-cliente','nombre-tienda','poblacion','ruta','campana'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+
+  // Sección 3 — Tipo de pedido
+  document.querySelectorAll('#chips-copia-azul .chip').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.tipo-btn-sm').forEach(b => b.classList.remove('active'));
+  document.getElementById('seccion-5-briefing').style.display = 'block'; // visible por defecto en pedido nuevo
+
+  // Sección 4 — Productos: eliminar todas las tarjetas y crear una nueva limpia
+  document.getElementById('productos-container').innerHTML = '';
+  productoCount = 0;
+  anadirProducto();
+
+  // Sección 5 — Briefing de diseño
+  document.querySelectorAll('.tipo-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('bloque-existente').style.display = 'none';
+  document.getElementById('bloque-modificar').style.display = 'none';
+  document.querySelectorAll('#bloque-existente input, #bloque-existente textarea').forEach(el => el.value = '');
+  document.getElementById('bloque-nuevo').style.display = 'none';
+  document.querySelectorAll('#bloque-nuevo textarea').forEach(el => el.value = '');
+  document.querySelectorAll('#bloque-nuevo .chip').forEach(c => c.classList.remove('active'));
+
+  // Adjuntos
+  document.getElementById('bloque-adjuntos').style.display = 'none';
+  document.getElementById('file-list').innerHTML = '';
+  files = [];
+
+  // Limpiar errores de validación
+  document.querySelectorAll('.error').forEach(el => el.classList.remove('error'));
+  document.querySelectorAll('.field-error.show, .group-error.show').forEach(el => el.classList.remove('show'));
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  updateProgress();
+}
+</script>
+
+<!-- PANTALLA DE ÉXITO -->
+<div class="success-screen" id="success-screen">
+  <div class="success-icon">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+  </div>
+  <h2>Briefing enviado</h2>
+  <p>El equipo de diseño ha recibido la notificación por email y puede comenzar a trabajar.</p>
+  <p style="font-size:12px;color:var(--gray-mid)">ID del pedido</p>
+  <div class="success-id" id="success-id">—</div>
+  <button class="btn-nuevo" onclick="nuevoPedido()">Crear nuevo pedido</button>
+</div>
+</body>
+</html>
