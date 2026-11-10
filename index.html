@@ -2508,7 +2508,7 @@ async function submitForm() {
   if (!validarFormulario()) return;
 
   // Estado de carga en el botón
-  const btn = document.querySelector('.btn-submit');
+  const btn = document.querySelector('button[onclick="submitForm()"]');
   const btnText = btn.querySelector('.btn-text');
   btn.disabled = true;
   btn.classList.add('loading');
