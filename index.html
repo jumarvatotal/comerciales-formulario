@@ -2041,7 +2041,7 @@ async function entrarConCodigo(codigo) {
       const salir = document.createElement('a');
       salir.href = '#';
       salir.textContent = 'Cambiar código';
-      salir.style.color = 'inherit';
+      salir.style.cssText = 'color:#fff;font-weight:700;text-decoration:underline;background:rgba(255,255,255,.2);padding:2px 10px;border-radius:10px;margin-left:6px;';
       salir.onclick = function() { cerrarSesion(); return false; };
       barra.appendChild(salir);
       ocultarAcceso();
