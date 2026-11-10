@@ -1102,10 +1102,17 @@
 <div class="acceso" id="acceso">
   <div class="acceso-card">
     <h2>Acceso comerciales</h2>
-    <p>Escribe tu código personal para ver tus clientes.</p>
-    <input type="password" id="acceso-input" inputmode="numeric" autocomplete="off" placeholder="Tu código">
-    <div class="acceso-error" id="acceso-error"></div>
-    <button type="button" class="btn-submit" id="acceso-btn" onclick="enviarCodigo()" style="width:100%">Entrar</button>
+    <div id="acceso-guardado" style="display:none">
+      <p>Ya hay un código guardado en este equipo. ¿Quieres continuar con él o entrar con otro?</p>
+      <button type="button" class="btn-submit" onclick="continuarGuardado()" style="width:100%;margin-bottom:10px">Continuar con el código guardado</button>
+      <button type="button" class="btn-submit" onclick="usarOtroCodigo()" style="width:100%;background:#fff;color:var(--red);border:2px solid var(--red)">Usar otro código</button>
+    </div>
+    <div id="acceso-nuevo">
+      <p>Escribe tu código personal para ver tus clientes.</p>
+      <input type="password" id="acceso-input" inputmode="numeric" autocomplete="off" placeholder="Tu código">
+      <div class="acceso-error" id="acceso-error"></div>
+      <button type="button" class="btn-submit" id="acceso-btn" onclick="enviarCodigo()" style="width:100%">Entrar</button>
+    </div>
   </div>
 </div>
 
@@ -2023,9 +2030,14 @@ function ocultarAcceso() {
   document.body.style.overflow = '';
 }
 
-async function entrarConCodigo(codigo) {
+async function entrarConCodigo(codigo, rapido) {
   document.getElementById('acceso-btn').disabled = true;
   document.getElementById('acceso-error').textContent = 'Comprobando...';
+  if (rapido) {
+    // Entrada inmediata: se abre el formulario ya y los clientes cargan en segundo plano
+    ocultarAcceso();
+    document.querySelector('.topbar').textContent = 'Uso interno — Departamento Comercial · Cargando tus clientes...';
+  }
   try {
     const resp = await fetch(APPS_SCRIPT_URL, {
       method: 'POST',
@@ -2071,7 +2083,25 @@ function cerrarSesion() {
 document.getElementById('acceso-input').addEventListener('keydown', e => { if (e.key === 'Enter') enviarCodigo(); });
 {
   const guardado = leerCodigo();
-  if (guardado) entrarConCodigo(guardado); else mostrarAcceso('');
+  if (guardado) {
+    mostrarAcceso('');
+    document.getElementById('acceso-guardado').style.display = 'block';
+    document.getElementById('acceso-nuevo').style.display = 'none';
+  } else mostrarAcceso('');
+}
+
+function continuarGuardado() {
+  document.getElementById('acceso-guardado').style.display = 'none';
+  document.getElementById('acceso-nuevo').style.display = 'block';
+  entrarConCodigo(leerCodigo(), true);
+}
+
+function usarOtroCodigo() {
+  borrarCodigo();
+  document.getElementById('acceso-guardado').style.display = 'none';
+  document.getElementById('acceso-nuevo').style.display = 'block';
+  document.getElementById('acceso-input').value = '';
+  document.getElementById('acceso-input').focus();
 }
 
 // ── BUSCADOR DE CLIENTE ──────────────────────────────────
