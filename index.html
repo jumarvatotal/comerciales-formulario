@@ -2287,120 +2287,171 @@ function recogerDatosProducto(card) {
 // ── FICHA TÉCNICA EN PDF (para quien hace el presupuesto) ──
 let ultimaFicha = null;
 
+// Hasta 2 productos: la ficha va en UNA sola hoja (si no cabe, se dibuja más pequeña, hasta un 60 %).
+// Más de 2 productos: tamaño normal y ocupa las hojas que necesite.
 function generarFichaPDF(d, idPedido) {
   if (!window.jspdf) throw new Error('No se pudo cargar la librería de PDF');
+  if ((d.productos || []).length > 2) return dibujarFichaPDF(d, idPedido, 1);
+  let doc;
+  for (let i = 0; i <= 8; i++) {
+    doc = dibujarFichaPDF(d, idPedido, 1 - i * 0.05);
+    if (doc.getNumberOfPages() === 1) break;
+  }
+  return doc;
+}
+
+function dibujarFichaPDF(d, idPedido, k) {
   const doc = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' });
-  const M = 15, W = 210, ANCHO = W - M * 2;
-  const ROJO = [232, 32, 26], NEGRO = [26, 26, 26], GRIS = [110, 110, 110];
+  const M = 12, W = 210, ANCHO = W - M * 2, LIMITE = 284;
+  const ROJO = [232, 32, 26], NEGRO = [26, 26, 26], GRIS = [110, 110, 110], LINEA = [190, 190, 190];
+  const FS_ETQ = 7.5 * k, FS_VAL = 8.5 * k;
+  const LH = FS_VAL * 0.42;          // alto de una línea de texto (mm)
+  const PAD = 1.3 * k;
   let y = 0;
 
-  // Cabecera
+  // Cabecera compacta
   doc.setFillColor(...ROJO);
-  doc.rect(0, 0, W, 24, 'F');
+  doc.rect(0, 0, W, 16, 'F');
   doc.setTextColor(255, 255, 255);
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(18);
-  doc.text('JUMARVA', M, 15);
-  doc.setFont('helvetica', 'normal'); doc.setFontSize(9);
-  doc.text('FICHA TÉCNICA · SOLICITUD DE PRESUPUESTO', W - M, 11, { align: 'right' });
-  doc.text(new Date().toLocaleDateString('es-ES'), W - M, 17, { align: 'right' });
-  y = 34;
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(15);
+  doc.text('JUMARVA', M, 10.5);
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(8);
+  doc.text('FICHA TÉCNICA · SOLICITUD DE PRESUPUESTO', W - M, 7, { align: 'right' });
+  doc.text(new Date().toLocaleDateString('es-ES'), W - M, 12, { align: 'right' });
+  y = 20;
 
-  const ensure = h => { if (y + h > 280) { doc.addPage(); y = 20; } };
-
-  // Estilo nota de pedido: título en barra roja y tabla con líneas y cuadros
-  const COL = 52, LINEA = [190, 190, 190];
-  doc.setLineWidth(0.25);
+  const ensure = h => { if (y + h > LIMITE) { doc.addPage(); y = 14; } };
+  doc.setLineWidth(0.2);
 
   const seccion = titulo => {
-    ensure(26);
-    y += 5;
+    ensure(14 * k);
+    y += 2.5 * k;
     doc.setFillColor(...ROJO);
     doc.setDrawColor(...ROJO);
-    doc.rect(M, y, ANCHO, 8, 'FD');
+    doc.rect(M, y, ANCHO, 6 * k, 'FD');
     doc.setTextColor(255, 255, 255);
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(10);
-    doc.text(titulo.toUpperCase(), M + 3, y + 5.6);
-    y += 8;
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(8.5 * k);
+    doc.text(titulo.toUpperCase(), M + 2, y + 4.2 * k);
+    y += 6 * k;
   };
 
-  const fila = (etiqueta, valor) => {
-    const texto = (valor === undefined || valor === null || valor === '') ? '—' : String(valor);
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
-    const lineas = doc.splitTextToSize(texto, ANCHO - COL - 5);
-    const alto = Math.max(8, lineas.length * 4.8 + 3.6);
+  const txt = v => (v === undefined || v === null || v === '') ? '—' : String(v);
+
+  // Una fila con 1 o 2 celdas (etiqueta gris + valor)
+  const filaCeldas = celdas => {
+    const anchoCelda = ANCHO / celdas.length;
+    const COL = celdas.length === 1 ? 34 : 28;
+    const prep = celdas.map(([etq, val]) => {
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(FS_ETQ);
+      const le = doc.splitTextToSize(etq.trim(), COL - 3);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(FS_VAL);
+      const lv = doc.splitTextToSize(txt(val), anchoCelda - COL - 3);
+      return { le, lv };
+    });
+    const maxLineas = Math.max(...prep.map(p => Math.max(p.le.length, p.lv.length)));
+    const alto = Math.max(5.5 * k, maxLineas * LH + PAD * 2);
     ensure(alto);
-    doc.setDrawColor(...LINEA);
-    doc.setFillColor(242, 242, 242);
-    doc.rect(M, y, COL, alto, 'FD');
-    doc.setFillColor(255, 255, 255);
-    doc.rect(M + COL, y, ANCHO - COL, alto, 'FD');
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(9.5); doc.setTextColor(...NEGRO);
-    doc.text(etiqueta.trim(), M + 3, y + 5.6);
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
-    doc.text(lineas, M + COL + 3, y + 5.6);
+    prep.forEach((p, i) => {
+      const x = M + i * anchoCelda;
+      doc.setDrawColor(...LINEA);
+      doc.setFillColor(242, 242, 242);
+      doc.rect(x, y, COL, alto, 'FD');
+      doc.setFillColor(255, 255, 255);
+      doc.rect(x + COL, y, anchoCelda - COL, alto, 'FD');
+      const base = y + PAD + LH * 0.78;
+      doc.setTextColor(...NEGRO);
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(FS_ETQ);
+      doc.text(p.le, x + 1.5, base);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(FS_VAL);
+      doc.text(p.lv, x + COL + 1.5, base);
+    });
     y += alto;
+  };
+
+  // Coloca los datos de dos en dos; los marcados como «ancho» ocupan la fila entera
+  const bloque = items => {
+    let pendiente = null;
+    items.filter(Boolean).forEach(it => {
+      if (it.ancho) {
+        if (pendiente) { filaCeldas([pendiente]); pendiente = null; }
+        filaCeldas([[it.l, it.v]]);
+      } else if (pendiente) {
+        filaCeldas([pendiente, [it.l, it.v]]); pendiente = null;
+      } else {
+        pendiente = [it.l, it.v];
+      }
+    });
+    if (pendiente) filaCeldas([pendiente]);
   };
 
   const acabado = (a, r, t) => (a !== 'Sí' && r !== 'Sí')
     ? 'No'
-    : `Anverso: ${a} · Reverso: ${r}${t ? ' · Acabado: ' + t : ''}`;
+    : `Anv.: ${a} · Rev.: ${r}${t ? ' · ' + t : ''}`;
 
   // Datos generales
   seccion('Datos del pedido');
-  fila('ID de pedido', idPedido);
-  fila('Cliente', d.cliente);
-  fila('Nº de cliente', d.numeroCliente || 'Cliente nuevo / pendiente de asignar');
-  fila('Muestra', d.muestra);
+  bloque([
+    { l: 'ID de pedido', v: idPedido },
+    { l: 'Muestra', v: d.muestra },
+    { l: 'Cliente', v: d.cliente },
+    { l: 'Nº de cliente', v: d.numeroCliente || 'Nuevo / pendiente' }
+  ]);
 
   // Productos
   d.productos.forEach((p, i) => {
     const formato = FORMATO_LABEL[p.formato] || p.formato;
     seccion(`Producto ${i + 1} — ${formato}${p.modelo ? ' · ' + p.modelo : ''}`);
-    fila('Formato', formato);
-    if (p.modelo) fila('Modelo', p.modelo);
-    fila('Acabado de cartón', p.carton);
-    fila('Medidas (mm)', `${p.ancho} (ancho) × ${p.alto} (alto) × ${p.profundidad} (profundidad)`);
-    fila('Cantidad', `${p.cantidad} unidades`);
-    fila('Tintas', p.tintas);
-    (p.detalleTintas ? p.detalleTintas.split(' | ') : []).forEach(t => {
-      const [k, ...resto] = t.split(': ');
-      fila(k, resto.join(': '));
-    });
-    fila('Barnizado', acabado(p.barnizadoAnverso, p.barnizadoReverso, p.barnizadoTipo));
-    fila('Plastificado', acabado(p.plastificadoAnverso, p.plastificadoReverso, p.plastificadoTipo));
-    fila('Contraencolado', p.contraencolado === 'Sí' ? `Sí · Espesor ${p.espesor}` : 'No');
-    fila('Engomado', p.engomado);
-    fila('Ventana', p.ventana);
-    if (p.observaciones) fila('Observaciones', p.observaciones);
+    bloque([
+      { l: 'Formato', v: formato },
+      p.modelo ? { l: 'Modelo', v: p.modelo } : null,
+      { l: 'Cartón', v: p.carton },
+      { l: 'Medidas (mm)', v: `${p.ancho} × ${p.alto} × ${p.profundidad} (an × al × pr)` },
+      { l: 'Cantidad', v: `${p.cantidad} uds.` },
+      { l: 'Tintas', v: p.tintas },
+      ...(p.detalleTintas ? p.detalleTintas.split(' | ') : []).map(t => {
+        const [e, ...resto] = t.split(': ');
+        return { l: e, v: resto.join(': ') };
+      }),
+      { l: 'Barnizado', v: acabado(p.barnizadoAnverso, p.barnizadoReverso, p.barnizadoTipo) },
+      { l: 'Plastificado', v: acabado(p.plastificadoAnverso, p.plastificadoReverso, p.plastificadoTipo) },
+      { l: 'Contraencolado', v: p.contraencolado === 'Sí' ? `Sí · ${p.espesor}` : 'No' },
+      { l: 'Engomado', v: p.engomado },
+      { l: 'Ventana', v: p.ventana },
+      p.observaciones ? { l: 'Observaciones', v: p.observaciones, ancho: true } : null
+    ]);
   });
 
   // Entrega
   seccion('Entrega');
-  fila('Fecha estimada', d.fechaEntrega ? d.fechaEntrega.split('-').reverse().join('/') : '');
-  fila('Detalle', d.entrega);
+  bloque([
+    { l: 'Fecha estimada', v: d.fechaEntrega ? d.fechaEntrega.split('-').reverse().join('/') : '' },
+    { l: 'Detalle', v: d.entrega, ancho: true }
+  ]);
 
   // Diseño (solo si la muestra no es repetición)
   if (d.muestra !== 'Repetición' && d.tipoTrabajo) {
     seccion('Briefing de diseño');
-    fila('Tipo de trabajo', d.tipoTrabajo);
-    if (d.referenciaAnterior) fila('Referencia anterior', d.referenciaAnterior);
-    if (d.queCambiar) fila('Qué hay que cambiar', d.queCambiar);
-    if (d.descripcionDiseno) fila('Descripción', d.descripcionDiseno);
-    if (d.notas) fila('Notas', d.notas);
+    bloque([
+      { l: 'Tipo de trabajo', v: d.tipoTrabajo },
+      d.referenciaAnterior ? { l: 'Ref. anterior', v: d.referenciaAnterior } : null,
+      d.queCambiar ? { l: 'Qué cambiar', v: d.queCambiar, ancho: true } : null,
+      d.descripcionDiseno ? { l: 'Descripción', v: d.descripcionDiseno, ancho: true } : null,
+      d.notas ? { l: 'Notas', v: d.notas, ancho: true } : null
+    ]);
   }
 
   if (files.length) {
     seccion('Archivos adjuntos');
-    files.forEach(f => fila('•', f.name));
+    bloque([{ l: 'Archivos', v: files.map(f => f.name).join(' · '), ancho: true }]);
   }
 
   // Pie con numeración
   const n = doc.getNumberOfPages();
   for (let i = 1; i <= n; i++) {
     doc.setPage(i);
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(...GRIS);
-    doc.text(`Jumarva · ${idPedido}`, M, 290);
-    doc.text(`Página ${i} de ${n}`, W - M, 290, { align: 'right' });
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(...GRIS);
+    doc.text(`Jumarva · ${idPedido}`, M, 292);
+    doc.text(`Página ${i} de ${n}`, W - M, 292, { align: 'right' });
   }
   return doc;
 }
