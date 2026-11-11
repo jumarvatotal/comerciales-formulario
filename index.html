@@ -2307,26 +2307,38 @@ function generarFichaPDF(d, idPedido) {
 
   const ensure = h => { if (y + h > 280) { doc.addPage(); y = 20; } };
 
+  // Estilo nota de pedido: título en barra roja y tabla con líneas y cuadros
+  const COL = 52, LINEA = [190, 190, 190];
+  doc.setLineWidth(0.25);
+
   const seccion = titulo => {
-    ensure(16);
-    y += 3;
+    ensure(26);
+    y += 5;
     doc.setFillColor(...ROJO);
-    doc.rect(M, y, ANCHO, 7, 'F');
+    doc.setDrawColor(...ROJO);
+    doc.rect(M, y, ANCHO, 8, 'FD');
     doc.setTextColor(255, 255, 255);
     doc.setFont('helvetica', 'bold'); doc.setFontSize(10);
-    doc.text(titulo.toUpperCase(), M + 3, y + 5);
-    y += 12;
+    doc.text(titulo.toUpperCase(), M + 3, y + 5.6);
+    y += 8;
   };
 
   const fila = (etiqueta, valor) => {
     const texto = (valor === undefined || valor === null || valor === '') ? '—' : String(valor);
-    const lineas = doc.splitTextToSize(texto, ANCHO - 48);
-    ensure(lineas.length * 5 + 2);
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.setTextColor(...GRIS);
-    doc.text(etiqueta, M, y);
-    doc.setFont('helvetica', 'normal'); doc.setTextColor(...NEGRO);
-    doc.text(lineas, M + 48, y);
-    y += lineas.length * 5 + 1.5;
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
+    const lineas = doc.splitTextToSize(texto, ANCHO - COL - 5);
+    const alto = Math.max(8, lineas.length * 4.8 + 3.6);
+    ensure(alto);
+    doc.setDrawColor(...LINEA);
+    doc.setFillColor(242, 242, 242);
+    doc.rect(M, y, COL, alto, 'FD');
+    doc.setFillColor(255, 255, 255);
+    doc.rect(M + COL, y, ANCHO - COL, alto, 'FD');
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(9.5); doc.setTextColor(...NEGRO);
+    doc.text(etiqueta.trim(), M + 3, y + 5.6);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
+    doc.text(lineas, M + COL + 3, y + 5.6);
+    y += alto;
   };
 
   const acabado = (a, r, t) => (a !== 'Sí' && r !== 'Sí')
@@ -2352,7 +2364,7 @@ function generarFichaPDF(d, idPedido) {
     fila('Tintas', p.tintas);
     (p.detalleTintas ? p.detalleTintas.split(' | ') : []).forEach(t => {
       const [k, ...resto] = t.split(': ');
-      fila('   ' + k, resto.join(': '));
+      fila(k, resto.join(': '));
     });
     fila('Barnizado', acabado(p.barnizadoAnverso, p.barnizadoReverso, p.barnizadoTipo));
     fila('Plastificado', acabado(p.plastificadoAnverso, p.plastificadoReverso, p.plastificadoTipo));
