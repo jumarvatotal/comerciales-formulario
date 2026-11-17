@@ -1,0 +1,16 @@
+{
+  "name": "Jumarva Briefings",
+  "short_name": "Jumarva",
+  "description": "Formulario de presupuestos y pedidos para comerciales de Jumarva",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#E8201A",
+  "lang": "es",
+  "icons": [
+    { "src": "icono/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icono/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icono/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
