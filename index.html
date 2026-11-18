@@ -2126,7 +2126,7 @@ function abrirAlta() {
   document.getElementById('alta-btn').textContent = 'Continuar';
   altaPaso = 1;
 }
-function cerrarAlta() { location.reload(); }
+function cerrarAlta() { location.href = location.pathname; }
 
 async function pasoAlta() {
   const err = document.getElementById('alta-error');
@@ -2140,6 +2140,12 @@ async function pasoAlta() {
       if (!r.ok) { err.textContent = r.bloqueado ? 'Demasiados intentos. Espera unos minutos.' : (r.error || 'No se pudo comprobar.'); btn.disabled = false; return; }
       const sel = document.getElementById('alta-nombre');
       sel.innerHTML = '<option value="">— Elige tu nombre —</option>' + (r.nombres || []).map(n => '<option>' + n.replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</option>').join('');
+      if (nombreFijo) {
+        if (!(r.nombres || []).includes(nombreFijo)) { err.textContent = 'Tu nombre no está activo todavía. Avisa a administración.'; btn.disabled = false; return; }
+        sel.value = nombreFijo; sel.style.display = 'none';
+        const et = document.createElement('p'); et.style.cssText = 'font-weight:700;margin:0 0 10px'; et.textContent = 'Hola, ' + nombreFijo + '. Elige tu código:';
+        sel.parentNode.insertBefore(et, sel);
+      }
       document.getElementById('alta-clave').style.display = 'none';
       document.getElementById('alta-paso2').style.display = 'block';
       btn.textContent = 'Guardar mi código'; altaPaso = 2; err.textContent = '';
@@ -2161,6 +2167,11 @@ async function pasoAlta() {
   }
   btn.disabled = false;
 }
+
+// Enlace personalizado: ...?n=NOMBRE abre directamente el alta con el nombre ya elegido
+let nombreFijo = '';
+try { nombreFijo = (new URLSearchParams(location.search).get('n') || '').trim(); } catch (e) {}
+if (nombreFijo) abrirAlta();
 
 function continuarGuardado() {
   document.getElementById('acceso-guardado').style.display = 'none';
