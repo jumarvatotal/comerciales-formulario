@@ -289,6 +289,12 @@
 
   /* TINTAS */
   .tintas-group { display: flex; gap: 8px; flex-wrap: wrap; }
+  /* Tintas cara/dorso: una línea con números */
+  .tintas-lado { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .tintas-lado-nombre { width: 52px; flex-shrink: 0; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+  .tintas-num { flex: 1; flex-wrap: nowrap; gap: 6px; }
+  .tintas-num .tinta-btn { min-width: 0; flex: 1; padding: 11px 0; font-size: 15px; font-weight: 700; text-align: center; }
+  .tintas-ayuda { font-size: 11px; color: var(--gray-mid); margin: -2px 0 10px; }
   .tinta-btn {
     flex: 1;
     min-width: 64px;
@@ -1245,6 +1251,13 @@
       </div>
       <p class="field-hint">Caja física de prototipo para validar con el cliente</p>
     </div>
+
+    <!-- PEDIDOS ANTERIORES (solo en Repetición) -->
+    <div id="panel-repeticion" style="display:none;margin-top:16px;padding:14px;border:1.5px dashed var(--red);border-radius:10px;background:#fff7f6">
+      <div style="font-weight:700;margin-bottom:4px">Pedidos anteriores de este cliente</div>
+      <p class="field-hint" style="margin:0 0 10px">Elige uno para rellenar el formulario con los mismos datos. Solo tendrás que poner la fecha y los datos de entrega.</p>
+      <div id="lista-repeticion" style="display:flex;flex-direction:column;gap:10px;font-size:13px"></div>
+    </div>
   </div>
 
   <!-- SECCIÓN 4: PRODUCTOS -->
@@ -1365,6 +1378,12 @@
 
   <!-- SUBMIT -->
   <div class="submit-area">
+    <div class="field" style="text-align:left;margin-bottom:16px">
+      <label>¿A quién se envía el presupuesto?</label>
+      <label style="display:flex;gap:10px;align-items:center;font-weight:500;margin:8px 0"><input type="checkbox" id="dest-abel" checked style="width:20px;height:20px"> Abel (ofitec)</label>
+      <label style="display:flex;gap:10px;align-items:center;font-weight:500;margin:8px 0"><input type="checkbox" id="dest-rafa" style="width:20px;height:20px"> Rafa (comercial)</label>
+      <label style="display:flex;gap:10px;align-items:center;font-weight:500;margin:8px 0;color:var(--gray-mid)"><input type="checkbox" checked disabled style="width:20px;height:20px"> Adrián (siempre recibe el presupuesto)</label>
+    </div>
     <p class="submit-hint">* Campos obligatorios · Al enviar se genera la ficha técnica en PDF para quien prepara el presupuesto</p>
     <button class="btn-submit" onclick="submitForm()">
       <span class="btn-spinner"></span>
@@ -1460,7 +1479,15 @@ const CARTON_OPCIONES = ['Blanco','Kraft','Naturale'];
 const ACABADOS = ['Brillo','Mate'];
 const ESPESORES = ['0,7','1,3','2,2'];
 
-const ENGOMADO_OPCIONES = ['No va engomado','2P','3P','4P','4P.FA','6P','Lineal (L)','Doble Baranda (DB)'];
+const ENGOMADO_OPCIONES = ['No va engomado','2P','3P','4P','Fondo automático','6P','Lineal (L)','Doble Baranda (DB)'];
+const EMPAQUETADO_OPCIONES = ['Goma + caja','Retractilado','Retractilado + caja'];
+
+// Tipos de ventana según el formato
+const VENTANAS = {
+  turron:   ['Corta','Larga','Lisa','Curva','Versalles'],
+  roscones: ['Arpa','Redonda','Corona','Media luna','Estrella'],
+  pasta:    ['Ovalada','Rectangular'],
+};
 
 // ── SISTEMA MULTI-PRODUCTO ──────────────────────────────
 let productoCount = 0;
@@ -1486,8 +1513,8 @@ function crearTarjetaProducto() {
 
   const formatosHTML = FORMATOS.map(([v, l]) =>
     `<div class="chip" data-value="${v}" onclick="setFormato(${pid}, this, '${v}')">${l}</div>`).join('');
-  const tintasHTML = [1,2,3,4,5].map(n =>
-    `<button type="button" class="tinta-btn" onclick="setNumTintasProducto(${pid}, this, ${n})">${n} ${n === 1 ? 'tinta' : 'tintas'}</button>`).join('');
+  const tintasHTML = lado => [0,1,2,3,4,5].map(n =>
+    `<button type="button" class="tinta-btn" data-n="${n}" onclick="setNumTintasProducto(${pid}, this, ${n}, '${lado}')">${n}</button>`).join('');
 
   card.innerHTML = `
     <div class="producto-card-header">
@@ -1520,9 +1547,9 @@ function crearTarjetaProducto() {
       <div class="field">
         <label>Medidas (mm) <span class="req">*</span></label>
         <div class="row3">
-          <div class="field" style="margin-bottom:0"><label>Ancho</label><input type="number" placeholder="200" min="0" class="p-ancho"></div>
-          <div class="field" style="margin-bottom:0"><label>Alto</label><input type="number" placeholder="150" min="0" class="p-alto"></div>
-          <div class="field" style="margin-bottom:0"><label>Profundidad</label><input type="number" placeholder="80" min="0" class="p-profundidad"></div>
+          <div class="field" style="margin-bottom:0"><label>Largo</label><input type="number" placeholder="200" min="0" class="p-largo"></div>
+          <div class="field" style="margin-bottom:0"><label>Ancho</label><input type="number" placeholder="150" min="0" class="p-ancho"></div>
+          <div class="field" style="margin-bottom:0"><label>Alto</label><input type="number" placeholder="80" min="0" class="p-alto"></div>
         </div>
       </div>
       <div class="field" style="margin-bottom:0">
@@ -1534,12 +1561,24 @@ function crearTarjetaProducto() {
 
     <div class="field-divider"></div>
 
-    <div class="field">
-      <label>Tintas (máximo 5) <span class="req">*</span></label>
-      <div class="tintas-group p-tintas-group">${tintasHTML}</div>
-    </div>
-    <div class="p-tintas-detalle" style="display:none; margin-top:10px">
-      <div class="p-tintas-filas"></div>
+    <!-- TINTAS: CARA Y DORSO -->
+    <div class="tecnico-bloque">
+      <span class="tecnico-bloque-label">Tintas <span class="req">*</span></span>
+      <p class="tintas-ayuda">Elige cuántas tintas lleva cada lado (0 = sin tintas, máximo 5).</p>
+      <div class="tintas-lado">
+        <span class="tintas-lado-nombre">Cara</span>
+        <div class="tintas-group tintas-num p-tintas-cara">${tintasHTML('cara')}</div>
+      </div>
+      <div class="p-tintas-detalle-cara" style="display:none; margin:0 0 12px">
+        <div class="p-tintas-filas-cara"></div>
+      </div>
+      <div class="tintas-lado">
+        <span class="tintas-lado-nombre">Dorso</span>
+        <div class="tintas-group tintas-num p-tintas-dorso">${tintasHTML('dorso')}</div>
+      </div>
+      <div class="p-tintas-detalle-dorso" style="display:none; margin:0">
+        <div class="p-tintas-filas-dorso"></div>
+      </div>
     </div>
 
     <div class="field-divider"></div>
@@ -1549,11 +1588,11 @@ function crearTarjetaProducto() {
       <span class="tecnico-bloque-label">Barnizado</span>
       <div class="tecnico-row">
         <div>
-          <label>Anverso <span class="req">*</span></label>
+          <label>Cara <span class="req">*</span></label>
           <div class="sino-group p-barniz-anverso">${botonesHTML(pid, 'barniz', ['Sí','No'])}</div>
         </div>
         <div>
-          <label>Reverso <span class="req">*</span></label>
+          <label>Dorso <span class="req">*</span></label>
           <div class="sino-group p-barniz-reverso">${botonesHTML(pid, 'barniz', ['Sí','No'])}</div>
         </div>
       </div>
@@ -1568,11 +1607,11 @@ function crearTarjetaProducto() {
       <span class="tecnico-bloque-label">Plastificado</span>
       <div class="tecnico-row">
         <div>
-          <label>Anverso <span class="req">*</span></label>
+          <label>Cara <span class="req">*</span></label>
           <div class="sino-group p-plast-anverso">${botonesHTML(pid, 'plast', ['Sí','No'])}</div>
         </div>
         <div>
-          <label>Reverso <span class="req">*</span></label>
+          <label>Dorso <span class="req">*</span></label>
           <div class="sino-group p-plast-reverso">${botonesHTML(pid, 'plast', ['Sí','No'])}</div>
         </div>
       </div>
@@ -1598,6 +1637,11 @@ function crearTarjetaProducto() {
     </div>
 
     <div class="field">
+      <label>Alto brillo <span class="req">*</span></label>
+      <div class="sino-group p-alto-brillo">${botonesHTML(pid, 'altobrillo', ['Sí','No'])}</div>
+    </div>
+
+    <div class="field">
       <label>Engomado <span class="req">*</span></label>
       <div class="chip-group p-engomado-group">${ENGOMADO_OPCIONES.map(o => `<div class="chip" onclick="toggleChip(this,'engomado')">${o}</div>`).join('')}</div>
     </div>
@@ -1605,6 +1649,15 @@ function crearTarjetaProducto() {
     <div class="field">
       <label>Ventana <span class="req">*</span></label>
       <div class="sino-group p-ventana">${botonesHTML(pid, 'ventana', ['Sí','No'])}</div>
+    </div>
+    <div class="field p-ventana-tipo-wrap" style="display:none">
+      <label>Tipo de ventana <span class="req">*</span></label>
+      <div class="chip-group p-ventana-tipo"></div>
+    </div>
+
+    <div class="field">
+      <label>Empaquetado <span class="req">*</span></label>
+      <div class="chip-group p-empaquetado-group">${EMPAQUETADO_OPCIONES.map(o => `<div class="chip" onclick="toggleChip(this,'empaquetado')">${o}</div>`).join('')}</div>
     </div>
 
     <div class="field" style="margin-bottom:0">
@@ -1622,6 +1675,27 @@ function setFormato(pid, el, valor) {
   el.classList.add('active');
   group.classList.remove('error');
   updateModelosProducto(pid, valor);
+  actualizarVentanaTipo(document.getElementById(`producto-${pid}`));
+}
+
+// Tipo de ventana: solo si Ventana = Sí y el formato tiene tipos (turrón, roscón, pasta)
+function actualizarVentanaTipo(card, valorSeleccionado) {
+  const formato = card.querySelector('.p-formato-group .chip.active')?.dataset.value || '';
+  const ventanaSi = card.querySelector('.p-ventana .sino-btn.active')?.textContent.trim() === 'Sí';
+  const lista = VENTANAS[formato] || [];
+  const wrap = card.querySelector('.p-ventana-tipo-wrap');
+  const grupo = card.querySelector('.p-ventana-tipo');
+  const previo = valorSeleccionado || grupo.querySelector('.chip.active')?.textContent.trim() || '';
+  grupo.innerHTML = '';
+  if (!ventanaSi || !lista.length) { wrap.style.display = 'none'; return; }
+  lista.forEach(o => {
+    const chip = document.createElement('div');
+    chip.className = 'chip' + (o === previo ? ' active' : '');
+    chip.textContent = o;
+    chip.onclick = function() { toggleChip(chip, 'ventana-tipo'); };
+    grupo.appendChild(chip);
+  });
+  wrap.style.display = 'block';
 }
 
 function anadirProducto() {
@@ -1674,14 +1748,16 @@ function updateModelosProducto(pid, formato) {
 }
 
 // Tintas por producto
-function setNumTintasProducto(pid, el, num) {
+function setNumTintasProducto(pid, el, num, lado) {
   const card = document.getElementById(`producto-${pid}`);
-  card.querySelectorAll('.p-tintas-group .tinta-btn').forEach(b => b.classList.remove('active'));
+  const grupo = card.querySelector('.p-tintas-' + lado);
+  grupo.querySelectorAll('.tinta-btn').forEach(b => b.classList.remove('active'));
+  grupo.classList.remove('error');
   el.classList.add('active');
-  const filas = card.querySelector('.p-tintas-filas');
+  const filas = card.querySelector('.p-tintas-filas-' + lado);
   filas.innerHTML = '';
   for (let i = 1; i <= num; i++) filas.appendChild(crearFilaTinta(i));
-  card.querySelector('.p-tintas-detalle').style.display = 'block';
+  card.querySelector('.p-tintas-detalle-' + lado).style.display = num > 0 ? 'block' : 'none';
 }
 
 function crearFilaTinta(n) {
@@ -1737,6 +1813,7 @@ function setSiNo(el, pid, grupo) {
   if (grupo === 'contra') {
     card.querySelector('.p-contra-espesor-wrap').style.display = (valor === 'Sí') ? 'block' : 'none';
   }
+  if (grupo === 'ventana') actualizarVentanaTipo(card);
 }
 
 // Muestra (Repetición / Cambio / Nuevo)
@@ -1754,6 +1831,7 @@ function setMuestra(el, tipo) {
   } else {
     seccion5.style.display = 'block';
   }
+  cargarPedidosPrevios();
 }
 
 // Crear el primer producto al cargar la página
@@ -1924,10 +2002,11 @@ function validarFormulario() {
     marcar('.p-carton-group', !!activo('.p-carton-group'));
 
     // Tintas
-    marcar('.p-tintas-group', !!card.querySelector('.tinta-btn.active'));
+    marcar('.p-tintas-cara', !!card.querySelector('.p-tintas-cara .tinta-btn.active'));
+    marcar('.p-tintas-dorso', !!card.querySelector('.p-tintas-dorso .tinta-btn.active'));
 
     // Medidas
-    ['.p-ancho', '.p-alto', '.p-profundidad'].forEach(sel => {
+    ['.p-largo', '.p-ancho', '.p-alto'].forEach(sel => {
       const input = card.querySelector(sel);
       const medidaOk = !!input.value && parseInt(input.value) > 0;
       input.classList.toggle('error', !medidaOk);
@@ -1960,11 +2039,20 @@ function validarFormulario() {
       marcar('.p-contra-espesor', !!activo('.p-contra-espesor'));
     }
 
+    // Alto brillo
+    marcar('.p-alto-brillo', !!activo('.p-alto-brillo'));
+
     // Engomado
     marcar('.p-engomado-group', !!card.querySelector('.p-engomado-group .chip.active'));
 
-    // Ventana
+    // Ventana (y su tipo, si el formato tiene tipos)
     marcar('.p-ventana', !!activo('.p-ventana'));
+    if (card.querySelector('.p-ventana-tipo-wrap').style.display !== 'none') {
+      marcar('.p-ventana-tipo', !!card.querySelector('.p-ventana-tipo .chip.active'));
+    }
+
+    // Empaquetado
+    marcar('.p-empaquetado-group', !!card.querySelector('.p-empaquetado-group .chip.active'));
   });
 
   // ── SECCIÓN 4: Entrega ──
@@ -2227,8 +2315,8 @@ function buscarCliente(query) {
     const item = document.createElement('div');
     item.className = 'cliente-resultado-item';
     item.innerHTML = `
-      <div class="cliente-resultado-nombre">${c.cliente}</div>
-      <div class="cliente-resultado-detalle">Nº ${c.numeroCliente || '—'}${c.nombreComercial ? ' · ' + c.nombreComercial : ''}${c.poblacion ? ' · ' + c.poblacion : ''}</div>
+      <div class="cliente-resultado-nombre">${nombreVisible(c)}</div>
+      <div class="cliente-resultado-detalle">Nº ${c.numeroCliente || '—'}${c.poblacion ? ' · ' + c.poblacion : ''}</div>
     `;
     item.onclick = () => seleccionarCliente(c);
     resultados.appendChild(item);
@@ -2246,14 +2334,17 @@ document.getElementById('cliente-buscador').addEventListener('keydown', function
   if (exacto) seleccionarCliente(exacto);
 });
 
+// Nombre que se muestra: el nombre comercial del cliente (si no lo tiene, el nombre fiscal)
+function nombreVisible(c) { return c.nombreComercial || c.cliente || ''; }
+
 function seleccionarCliente(c) {
-  document.getElementById('cliente').value = c.cliente;
+  document.getElementById('cliente').value = nombreVisible(c);
   document.getElementById('cliente-buscador').value = '';
   document.getElementById('cliente-buscador').style.display = 'none';
   document.getElementById('cliente-resultados').classList.remove('show');
   document.getElementById('cliente-resultados').innerHTML = '';
 
-  document.getElementById('cliente-seleccionado-nombre').textContent = c.cliente;
+  document.getElementById('cliente-seleccionado-nombre').textContent = nombreVisible(c);
   document.getElementById('cliente-seleccionado-numero').textContent = c.numeroCliente ? 'Nº de cliente: ' + c.numeroCliente : 'Nº de cliente: pendiente de asignar';
   document.getElementById('cliente-seleccionado').style.display = 'flex';
   document.getElementById('btn-cliente-nuevo').style.display = 'none';
@@ -2270,8 +2361,9 @@ function seleccionarCliente(c) {
   document.getElementById('cliente').classList.remove('error');
   document.getElementById('cliente-buscador').classList.remove('error');
   showErr('err-cliente', false);
-  generarID(c.cliente);
+  generarID(nombreVisible(c));
   updateProgress();
+  cargarPedidosPrevios();
 }
 
 function cambiarCliente() {
@@ -2324,14 +2416,131 @@ function activarClienteNuevo() {
   });
 }
 
+// ── REPETICIÓN: pedidos anteriores del cliente ──────────
+let pedidosPrevios = [];
+
+async function cargarPedidosPrevios() {
+  const panel = document.getElementById('panel-repeticion');
+  const lista = document.getElementById('lista-repeticion');
+  const num = (document.getElementById('numero-cliente').value || '').trim();
+  const esRep = document.querySelector('.tipo-btn-sm.active .tipo-label-sm')?.textContent === 'Repetición';
+  if (!esRep || !num || clienteNuevoActivo) { panel.style.display = 'none'; return; }
+  panel.style.display = 'block';
+  lista.textContent = 'Buscando pedidos anteriores...';
+  try {
+    const r = await (await fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify({ accion: 'pedidosCliente', codigo: codigoActual, numeroCliente: num }) })).json();
+    if (!r.ok) { lista.textContent = r.error || 'No se pudieron cargar los pedidos anteriores.'; return; }
+    pedidosPrevios = r.pedidos || [];
+    lista.innerHTML = '';
+    if (!pedidosPrevios.length) { lista.textContent = 'Este cliente todavía no tiene pedidos guardados. Rellena el formulario a mano.'; return; }
+    pedidosPrevios.forEach((p, i) => {
+      const d = p.datos || {};
+      const resumen = (d.productos || []).map(x => `${FORMATO_LABEL[x.formato] || x.formato}${x.modelo ? ' ' + x.modelo : ''} (${x.cantidad} uds.)`).join(' + ');
+      const caja = document.createElement('div');
+      caja.style.cssText = 'background:#fff;border:1px solid #e3e3e3;border-radius:8px;padding:10px';
+      const t = document.createElement('div');
+      t.style.cssText = 'font-weight:600;margin-bottom:6px';
+      t.textContent = `${p.id} · ${p.fecha}`;
+      const s = document.createElement('div');
+      s.style.cssText = 'color:#666;margin-bottom:8px';
+      s.textContent = resumen || '—';
+      const b1 = document.createElement('button');
+      b1.type = 'button'; b1.className = 'btn-submit'; b1.style.cssText = 'padding:8px 12px;font-size:12px;margin-right:8px';
+      b1.textContent = 'Rellenar con este pedido';
+      b1.onclick = () => rellenarDesdePedido(i);
+      const b2 = document.createElement('button');
+      b2.type = 'button'; b2.className = 'btn-submit'; b2.style.cssText = 'padding:8px 12px;font-size:12px;background:#fff;color:var(--red);border:2px solid var(--red)';
+      b2.textContent = 'Descargar ficha';
+      b2.onclick = () => descargarFichaPedido(i);
+      caja.append(t, s, b1, b2);
+      lista.appendChild(caja);
+    });
+  } catch (e) {
+    lista.textContent = 'No se pudieron cargar los pedidos anteriores. Comprueba tu conexión.';
+  }
+}
+
+function descargarFichaPedido(i) {
+  const p = pedidosPrevios[i];
+  if (!p) return;
+  try {
+    generarFichaPDF(p.datos, p.id).save(`Ficha_tecnica_${String(p.id).replace(/[^\w-]/g, '_')}.pdf`);
+  } catch (e) { alert('No se pudo generar la ficha: ' + e.message); }
+}
+
+function rellenarProducto(card, p) {
+  const pid = card.dataset.pid;
+  const sino = (sel, val) => { const b = Array.from(card.querySelectorAll(sel + ' .sino-btn')).find(x => x.textContent.trim() === val); if (b) b.click(); };
+  const chip = (sel, val) => { const c = Array.from(card.querySelectorAll(sel + ' .chip')).find(x => x.textContent.trim() === val); if (c) c.click(); };
+
+  const cf = card.querySelector(`.p-formato-group .chip[data-value="${p.formato}"]`);
+  if (cf) setFormato(pid, cf, p.formato);
+  if (p.modelo) { const b = Array.from(card.querySelectorAll('.modelo-btn')).find(x => x.querySelector('.modelo-name').textContent === p.modelo); if (b) b.click(); }
+  sino('.p-carton-group', p.carton);
+
+  ['cara', 'dorso'].forEach(lado => {
+    const n = lado === 'cara' ? p.tintasCara : p.tintasDorso;
+    const det = (lado === 'cara' ? p.tintasCaraDet : p.tintasDorsoDet) || [];
+    const btn = card.querySelector(`.p-tintas-${lado} .tinta-btn[data-n="${n}"]`);
+    if (!btn) return;
+    btn.click();
+    card.querySelectorAll(`.p-tintas-filas-${lado} .tinta-fila`).forEach((fila, k) => {
+      const t = det[k]; if (!t) return;
+      const tb = Array.from(fila.querySelectorAll('.tinta-tipo-btn')).find(x => x.textContent === t.tipo); if (tb) tb.click();
+      fila.querySelector('.tinta-ref').value = t.ref || '';
+    });
+  });
+
+  card.querySelector('.p-largo').value = p.largo || '';
+  card.querySelector('.p-ancho').value = p.ancho || '';
+  card.querySelector('.p-alto').value = p.alto || '';
+  card.querySelector('.p-cantidad').value = p.cantidad || '';
+
+  sino('.p-barniz-anverso', p.barnizadoAnverso); sino('.p-barniz-reverso', p.barnizadoReverso);
+  if (p.barnizadoTipo) sino('.p-barniz-tipo', p.barnizadoTipo);
+  sino('.p-plast-anverso', p.plastificadoAnverso); sino('.p-plast-reverso', p.plastificadoReverso);
+  if (p.plastificadoTipo) sino('.p-plast-tipo', p.plastificadoTipo);
+  sino('.p-contra-sino', p.contraencolado);
+  if (p.espesor) sino('.p-contra-espesor', p.espesor);
+  sino('.p-alto-brillo', p.altoBrillo);
+  chip('.p-engomado-group', p.engomado);
+  sino('.p-ventana', p.ventana);
+  if (p.ventanaTipo) actualizarVentanaTipo(card, p.ventanaTipo);
+  chip('.p-empaquetado-group', p.empaquetado);
+  card.querySelector('.p-observaciones').value = p.observaciones || '';
+}
+
+function rellenarDesdePedido(i) {
+  const d = (pedidosPrevios[i] || {}).datos;
+  if (!d) return;
+  if (!confirm('Se van a sustituir los productos del formulario por los de este pedido. ¿Continuar?')) return;
+  const cont = document.getElementById('productos-container');
+  cont.innerHTML = '';
+  productoCount = 0;
+  (d.productos || []).forEach(p => {
+    const card = crearTarjetaProducto();
+    cont.appendChild(card);
+    rellenarProducto(card, p);
+  });
+  if (!cont.children.length) anadirProducto();
+  document.getElementById('entrega').value = d.entrega || '';
+  document.getElementById('fecha-entrega').value = '';   // la fecha la pone el comercial
+  document.querySelectorAll('.error').forEach(el => el.classList.remove('error'));
+  document.getElementById('sec-productos').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  updateProgress();
+}
+
 // ── RECOGER DATOS DE UN PRODUCTO (tarjeta) ──────────────
 function recogerDatosProducto(card) {
-  const filasTinta = card.querySelectorAll('.tinta-fila');
-  const detalleTintas = Array.from(filasTinta).map((fila, i) => {
-    const tipo = fila.querySelector('.tinta-tipo-btn.active')?.textContent || '—';
-    const ref  = fila.querySelector('.tinta-ref')?.value || '';
-    return `Tinta ${i+1}: ${tipo}${ref ? ' · ' + ref : ''}`;
-  }).join(' | ');
+  const leerTintas = lado => Array.from(card.querySelectorAll('.p-tintas-filas-' + lado + ' .tinta-fila')).map(fila => ({
+    tipo: fila.querySelector('.tinta-tipo-btn.active')?.textContent || '',
+    ref:  fila.querySelector('.tinta-ref')?.value || ''
+  }));
+  const tintasCaraDet  = leerTintas('cara');
+  const tintasDorsoDet = leerTintas('dorso');
+  const textoTintas = (lado, lista) => lista.map((t, i) =>
+    `Tinta ${lado} ${i+1}: ${t.tipo || '—'}${t.ref ? ' · ' + t.ref : ''}`).join(' | ');
+  const numTintas = lado => card.querySelector('.p-tintas-' + lado + ' .tinta-btn.active')?.dataset.n || '';
 
   const act = sel => card.querySelector(sel + ' .sino-btn.active')?.textContent.trim() || '';
 
@@ -2347,11 +2556,15 @@ function recogerDatosProducto(card) {
     modelo:            card.querySelector('.modelo-btn.active .modelo-name')?.textContent || '',
     serie:             '',
     carton:            act('.p-carton-group'),
-    tintas:            card.querySelector('.tinta-btn.active')?.textContent || '',
-    detalleTintas:     detalleTintas,
+    tintasCara:        numTintas('cara'),
+    tintasDorso:       numTintas('dorso'),
+    tintasCaraDet:     tintasCaraDet,
+    tintasDorsoDet:    tintasDorsoDet,
+    detalleTintasCara: textoTintas('cara', tintasCaraDet),
+    detalleTintasDorso: textoTintas('dorso', tintasDorsoDet),
+    largo:             card.querySelector('.p-largo')?.value || '',
     ancho:             card.querySelector('.p-ancho')?.value || '',
     alto:              card.querySelector('.p-alto')?.value || '',
-    profundidad:       card.querySelector('.p-profundidad')?.value || '',
     cantidad:          card.querySelector('.p-cantidad')?.value || '',
     barnizadoAnverso:  barnizAnverso,
     barnizadoReverso:  barnizReverso,
@@ -2361,8 +2574,11 @@ function recogerDatosProducto(card) {
     plastificadoTipo:  (plastAnverso === 'Sí' || plastReverso === 'Sí') ? act('.p-plast-tipo') : '',
     contraencolado:    contraSiNo,
     espesor:           contraSiNo === 'Sí' ? act('.p-contra-espesor') : '',
+    altoBrillo:        act('.p-alto-brillo') || 'No',
     engomado:          card.querySelector('.p-engomado-group .chip.active')?.textContent.trim() || '',
     ventana:           ventana,
+    ventanaTipo:       ventana === 'Sí' ? (card.querySelector('.p-ventana-tipo .chip.active')?.textContent.trim() || '') : '',
+    empaquetado:       card.querySelector('.p-empaquetado-group .chip.active')?.textContent.trim() || '',
     observaciones:     card.querySelector('.p-observaciones')?.value || '',
   };
 }
@@ -2467,9 +2683,9 @@ function dibujarFichaPDF(d, idPedido, k) {
     if (pendiente) filaCeldas([pendiente]);
   };
 
-  const acabado = (a, r, t) => (a !== 'Sí' && r !== 'Sí')
+  const acabado = (a, r, t, l1 = 'Anv.', l2 = 'Rev.') => (a !== 'Sí' && r !== 'Sí')
     ? 'No'
-    : `Anv.: ${a} · Rev.: ${r}${t ? ' · ' + t : ''}`;
+    : `${l1}: ${a} · ${l2}: ${r}${t ? ' · ' + t : ''}`;
 
   // Datos generales
   seccion('Datos del pedido');
@@ -2488,18 +2704,25 @@ function dibujarFichaPDF(d, idPedido, k) {
       { l: 'Formato', v: formato },
       p.modelo ? { l: 'Modelo', v: p.modelo } : null,
       { l: 'Cartón', v: p.carton },
-      { l: 'Medidas (mm)', v: `${p.ancho} × ${p.alto} × ${p.profundidad} (an × al × pr)` },
+      { l: 'Medidas (mm)', v: `${p.largo} × ${p.ancho} × ${p.alto} (l × an × al)` },
       { l: 'Cantidad', v: `${p.cantidad} uds.` },
-      { l: 'Tintas', v: p.tintas },
-      ...(p.detalleTintas ? p.detalleTintas.split(' | ') : []).map(t => {
+      { l: 'Tintas cara', v: p.tintasCara === '0' ? 'Sin tintas' : p.tintasCara },
+      ...(p.detalleTintasCara ? p.detalleTintasCara.split(' | ') : []).map(t => {
         const [e, ...resto] = t.split(': ');
         return { l: e, v: resto.join(': ') };
       }),
-      { l: 'Barnizado', v: acabado(p.barnizadoAnverso, p.barnizadoReverso, p.barnizadoTipo) },
-      { l: 'Plastificado', v: acabado(p.plastificadoAnverso, p.plastificadoReverso, p.plastificadoTipo) },
+      { l: 'Tintas dorso', v: p.tintasDorso === '0' ? 'Sin tintas' : p.tintasDorso },
+      ...(p.detalleTintasDorso ? p.detalleTintasDorso.split(' | ') : []).map(t => {
+        const [e, ...resto] = t.split(': ');
+        return { l: e, v: resto.join(': ') };
+      }),
+      { l: 'Barnizado', v: acabado(p.barnizadoAnverso, p.barnizadoReverso, p.barnizadoTipo, 'Cara', 'Dorso') },
+      { l: 'Plastificado', v: acabado(p.plastificadoAnverso, p.plastificadoReverso, p.plastificadoTipo, 'Cara', 'Dorso') },
       { l: 'Contraencolado', v: p.contraencolado === 'Sí' ? `Sí · ${p.espesor}` : 'No' },
+      { l: 'Alto brillo', v: p.altoBrillo },
       { l: 'Engomado', v: p.engomado },
-      { l: 'Ventana', v: p.ventana },
+      { l: 'Ventana', v: p.ventana === 'Sí' && p.ventanaTipo ? `Sí · ${p.ventanaTipo}` : p.ventana },
+      { l: 'Empaquetado', v: p.empaquetado },
       p.observaciones ? { l: 'Observaciones', v: p.observaciones, ancho: true } : null
     ]);
   });
@@ -2523,9 +2746,10 @@ function dibujarFichaPDF(d, idPedido, k) {
     ]);
   }
 
-  if (files.length) {
+  const nombresArch = d.nombresArchivos || files.map(f => f.name);
+  if (nombresArch.length) {
     seccion('Archivos adjuntos');
-    bloque([{ l: 'Archivos', v: files.map(f => f.name).join(' · '), ancho: true }]);
+    bloque([{ l: 'Archivos', v: nombresArch.join(' · '), ancho: true }]);
   }
 
   // Pie con numeración
@@ -2554,6 +2778,7 @@ function recogerDatos() {
     fechaEntrega:       document.getElementById('fecha-entrega').value,
     prioridad:          '',
     entrega:            document.getElementById('entrega').value.trim(),
+    destinos:           [document.getElementById('dest-abel')?.checked ? 'abel' : '', document.getElementById('dest-rafa')?.checked ? 'rafa' : ''].filter(Boolean),
 
     // Sección 2 — Datos del cliente
     representante:      document.getElementById('representante')?.value || '',
@@ -2662,6 +2887,7 @@ async function submitForm() {
   try {
     const datos = recogerDatos();
     datos.codigo = codigoActual;
+    datos.nombresArchivos = files.map(f => f.name);
 
     if (files.length > 0) {
       btnText.textContent = 'Optimizando archivos...';
@@ -2760,6 +2986,10 @@ function nuevoPedido() {
   // Sección 3 — Tipo de pedido
   document.querySelectorAll('.tipo-btn-sm').forEach(b => b.classList.remove('active'));
   document.getElementById('seccion-5-briefing').style.display = 'block'; // visible por defecto en pedido nuevo
+  document.getElementById('panel-repeticion').style.display = 'none';
+  pedidosPrevios = [];
+  document.getElementById('dest-abel').checked = true;
+  document.getElementById('dest-rafa').checked = false;
 
   // Sección 4 — Productos: eliminar todas las tarjetas y crear una nueva limpia
   document.getElementById('productos-container').innerHTML = '';
