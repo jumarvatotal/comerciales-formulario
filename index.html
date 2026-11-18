@@ -1119,9 +1119,22 @@
     </div>
     <div id="acceso-nuevo">
       <p>Escribe tu código personal para ver tus clientes.</p>
-      <input type="password" id="acceso-input" inputmode="numeric" autocomplete="off" placeholder="Tu código">
+      <input type="password" id="acceso-input" autocomplete="off" autocapitalize="off" placeholder="Tu código">
       <div class="acceso-error" id="acceso-error"></div>
       <button type="button" class="btn-submit" id="acceso-btn" onclick="enviarCodigo()" style="width:100%">Entrar</button>
+      <p style="margin:14px 0 0;text-align:center"><a href="#" onclick="abrirAlta();return false;" style="color:var(--red);font-weight:600">Crear o cambiar mi código</a></p>
+    </div>
+    <div id="acceso-alta" style="display:none">
+      <p>Pide la <b>clave de alta</b> a administración. Con ella eliges tu propio código (4 a 20 letras o números).</p>
+      <input type="password" id="alta-clave" autocomplete="off" autocapitalize="off" placeholder="Clave de alta">
+      <div id="alta-paso2" style="display:none">
+        <select id="alta-nombre" style="width:100%;padding:12px;margin-bottom:10px;border:1.5px solid #ddd;border-radius:8px;font-size:15px"></select>
+        <input type="password" id="alta-codigo" autocomplete="new-password" autocapitalize="off" placeholder="Tu nuevo código">
+        <input type="password" id="alta-codigo2" autocomplete="new-password" autocapitalize="off" placeholder="Repite tu nuevo código">
+      </div>
+      <div class="acceso-error" id="alta-error"></div>
+      <button type="button" class="btn-submit" id="alta-btn" onclick="pasoAlta()" style="width:100%">Continuar</button>
+      <p style="margin:14px 0 0;text-align:center"><a href="#" onclick="cerrarAlta();return false;" style="color:var(--gray-mid)">Volver</a></p>
     </div>
   </div>
 </div>
@@ -2098,6 +2111,55 @@ document.getElementById('acceso-input').addEventListener('keydown', e => { if (e
     document.getElementById('acceso-guardado').style.display = 'block';
     document.getElementById('acceso-nuevo').style.display = 'none';
   } else mostrarAcceso('');
+}
+
+// ── ALTA: el comercial elige su propio código ───────────
+let altaPaso = 1;
+function abrirAlta() {
+  document.getElementById('acceso-guardado').style.display = 'none';
+  document.getElementById('acceso-nuevo').style.display = 'none';
+  document.getElementById('acceso-alta').style.display = 'block';
+  document.getElementById('alta-paso2').style.display = 'none';
+  document.getElementById('alta-clave').style.display = '';
+  document.getElementById('alta-clave').value = '';
+  document.getElementById('alta-error').textContent = '';
+  document.getElementById('alta-btn').textContent = 'Continuar';
+  altaPaso = 1;
+}
+function cerrarAlta() { location.reload(); }
+
+async function pasoAlta() {
+  const err = document.getElementById('alta-error');
+  const btn = document.getElementById('alta-btn');
+  const clave = document.getElementById('alta-clave').value.trim();
+  if (!clave) { err.textContent = 'Escribe la clave de alta.'; return; }
+  btn.disabled = true; err.textContent = 'Comprobando...';
+  try {
+    if (altaPaso === 1) {
+      const r = await (await fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify({ accion: 'altaListar', clave: clave }) })).json();
+      if (!r.ok) { err.textContent = r.bloqueado ? 'Demasiados intentos. Espera unos minutos.' : (r.error || 'No se pudo comprobar.'); btn.disabled = false; return; }
+      const sel = document.getElementById('alta-nombre');
+      sel.innerHTML = '<option value="">— Elige tu nombre —</option>' + (r.nombres || []).map(n => '<option>' + n.replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</option>').join('');
+      document.getElementById('alta-clave').style.display = 'none';
+      document.getElementById('alta-paso2').style.display = 'block';
+      btn.textContent = 'Guardar mi código'; altaPaso = 2; err.textContent = '';
+    } else {
+      const nombre = document.getElementById('alta-nombre').value;
+      const c1 = document.getElementById('alta-codigo').value.trim();
+      const c2 = document.getElementById('alta-codigo2').value.trim();
+      if (!nombre) { err.textContent = 'Elige tu nombre.'; btn.disabled = false; return; }
+      if (!/^[A-Za-z0-9]{4,20}$/.test(c1)) { err.textContent = 'El código debe tener 4 a 20 letras o números, sin espacios.'; btn.disabled = false; return; }
+      if (c1 !== c2) { err.textContent = 'Los dos códigos no coinciden.'; btn.disabled = false; return; }
+      const r = await (await fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify({ accion: 'altaCrear', clave: clave, nombre: nombre, nuevoCodigo: c1 }) })).json();
+      if (!r.ok) { err.textContent = r.error || 'No se pudo guardar.'; btn.disabled = false; return; }
+      document.getElementById('acceso-alta').style.display = 'none';
+      document.getElementById('acceso-nuevo').style.display = 'block';
+      entrarConCodigo(c1);
+    }
+  } catch (e) {
+    err.textContent = 'No se pudo conectar. Comprueba tu conexión.';
+  }
+  btn.disabled = false;
 }
 
 function continuarGuardado() {
