@@ -1547,6 +1547,11 @@ function crearTarjetaProducto() {
       <div class="modelo-grid p-modelo-grid"></div>
     </div>
 
+    <div class="field p-troquel-wrap" style="display:none">
+      <label>Nombre del nuevo troquel <span class="req">*</span></label>
+      <input type="text" class="p-troquel-nombre" maxlength="80" placeholder="Ej: Caja tarta con solapa 30×30" oninput="this.classList.remove('error')">
+    </div>
+
     <div class="field">
       <label>Acabado de cartón <span class="req">*</span></label>
       <div class="sino-group p-carton-group">${botonesHTML(pid, 'carton', CARTON_OPCIONES)}</div>
@@ -1688,6 +1693,10 @@ function setFormato(pid, el, valor) {
   el.classList.add('active');
   group.classList.remove('error');
   updateModelosProducto(pid, valor);
+  // Troquel nuevo: pide el nombre del troquel (obligatorio)
+  const cardF = document.getElementById(`producto-${pid}`);
+  cardF.querySelector('.p-troquel-wrap').style.display = valor === 'troquel' ? 'block' : 'none';
+  if (valor !== 'troquel') cardF.querySelector('.p-troquel-nombre').value = '';
   actualizarVentanaTipo(document.getElementById(`producto-${pid}`));
 }
 
@@ -2015,6 +2024,10 @@ function validarFormulario() {
     // Modelo — obligatorio solo si hay modelos para ese formato
     if (card.querySelector('.p-modelo-panel').classList.contains('visible')) {
       marcar('.p-modelo-grid', !!card.querySelector('.modelo-btn.active'));
+    }
+    // Troquel nuevo — el nombre es obligatorio
+    if (card.querySelector('.p-formato-group .chip.active')?.dataset.value === 'troquel') {
+      marcar('.p-troquel-nombre', card.querySelector('.p-troquel-nombre').value.trim().length > 0);
     }
 
     // Cartón
@@ -2504,7 +2517,8 @@ function rellenarProducto(card, p) {
   if (p.formato === 'panetone') p.formato = 'panettone';   // pedidos guardados con la grafía antigua
   const cf = card.querySelector(`.p-formato-group .chip[data-value="${p.formato}"]`);
   if (cf) setFormato(pid, cf, p.formato);
-  if (p.modelo) { const b = Array.from(card.querySelectorAll('.modelo-btn')).find(x => x.querySelector('.modelo-name').textContent === p.modelo); if (b) b.click(); }
+  if (p.formato === 'troquel' && p.modelo) card.querySelector('.p-troquel-nombre').value = p.modelo;
+  else if (p.modelo) { const b = Array.from(card.querySelectorAll('.modelo-btn')).find(x => x.querySelector('.modelo-name').textContent === p.modelo); if (b) b.click(); }
   sino('.p-carton-group', p.carton);
 
   ['cara', 'dorso'].forEach(lado => {
@@ -2582,7 +2596,10 @@ function recogerDatosProducto(card) {
 
   return {
     formato:           card.querySelector('.p-formato-group .chip.active')?.dataset.value || '',
-    modelo:            card.querySelector('.modelo-btn.active .modelo-name')?.textContent || '',
+    // En «Troquel nuevo» el modelo es el nombre escrito del troquel
+    modelo:            card.querySelector('.p-formato-group .chip.active')?.dataset.value === 'troquel'
+                         ? card.querySelector('.p-troquel-nombre').value.trim()
+                         : (card.querySelector('.modelo-btn.active .modelo-name')?.textContent || ''),
     serie:             '',
     carton:            act('.p-carton-group'),
     tintasCara:        numTintas('cara'),
