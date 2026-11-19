@@ -2295,13 +2295,15 @@ function buscarCliente(query) {
       ...clientesDB.filter(c => cod(c) === q),
       ...clientesDB.filter(c => cod(c) !== q && cod(c).startsWith(q)),
       ...clientesDB.filter(c => !cod(c).startsWith(q) && cod(c).includes(q))
-    ].slice(0, 15);
+    ];
   } else {
     coincidencias = [
       ...clientesDB.filter(c => cod(c) === q || cod(c).includes(q)),
       ...clientesDB.filter(c => !cod(c).includes(q) && porNombre(c))
-    ].slice(0, 15);
+    ];
   }
+  const totalCoincidencias = coincidencias.length;
+  coincidencias = coincidencias.slice(0, 15);
 
   resultados.innerHTML = '';
 
@@ -2321,6 +2323,13 @@ function buscarCliente(query) {
     item.onclick = () => seleccionarCliente(c);
     resultados.appendChild(item);
   });
+
+  if (totalCoincidencias > coincidencias.length) {
+    const mas = document.createElement('div');
+    mas.className = 'cliente-resultado-vacio';
+    mas.textContent = `Mostrando 15 de ${totalCoincidencias}. Escribe más letras o el número de cliente para afinar.`;
+    resultados.appendChild(mas);
+  }
 
   resultados.classList.add('show');
 }
