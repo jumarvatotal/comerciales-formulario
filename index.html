@@ -1466,12 +1466,12 @@ const modelos = {
   tarta:    ['Berlín','Hexagonales','Lyon','Milán','Munich','Niza','Orleans','París','París + Solapa','Prisma','Venecia'],
   roscones: ['Base Niza','Base Roma','Tapa Roma','Tapa Niza'],
 };
-const sinModelo = ['bombones','individuales','trufas','cupcake','panetone'];
+const sinModelo = ['bombones','individuales','trufas','cupcake','panettone'];
 
 const FORMATOS = [
   ['tarta','Tarta'],['pasta','Pasta'],['bombones','Bombones'],['brazo','Brazo'],['catering','Catering'],
   ['coca','Coca'],['cubetas','Cubetas'],['individuales','Individuales'],['mona','Mona y Figura'],
-  ['roscones','Roscón'],['trufas','Trufas'],['turron','Turrón'],['cupcake','Cupcake'],['panetone','Panetone']
+  ['roscones','Roscón'],['trufas','Trufas'],['turron','Turrón'],['cupcake','Cupcake'],['panettone','Panettone']
 ];
 const FORMATO_LABEL = Object.fromEntries(FORMATOS);
 
@@ -2488,6 +2488,7 @@ function rellenarProducto(card, p) {
   const sino = (sel, val) => { const b = Array.from(card.querySelectorAll(sel + ' .sino-btn')).find(x => x.textContent.trim() === val); if (b) b.click(); };
   const chip = (sel, val) => { const c = Array.from(card.querySelectorAll(sel + ' .chip')).find(x => x.textContent.trim() === val); if (c) c.click(); };
 
+  if (p.formato === 'panetone') p.formato = 'panettone';   // pedidos guardados con la grafía antigua
   const cf = card.querySelector(`.p-formato-group .chip[data-value="${p.formato}"]`);
   if (cf) setFormato(pid, cf, p.formato);
   if (p.modelo) { const b = Array.from(card.querySelectorAll('.modelo-btn')).find(x => x.querySelector('.modelo-name').textContent === p.modelo); if (b) b.click(); }
