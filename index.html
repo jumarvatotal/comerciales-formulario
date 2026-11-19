@@ -1465,12 +1465,15 @@ const modelos = {
   turron:   ['Luxe','Niza'],
   tarta:    ['Berlín','Hexagonales','Lyon','Milán','Munich','Niza','Orleans','París','París + Solapa','Prisma','Venecia'],
   roscones: ['Base Niza','Base Roma','Tapa Roma','Tapa Niza'],
+  ensaimada: ['Tapa','Base'],
 };
+// Opción extra en todos los formatos: troquel que todavía no existe
+const TROQUEL_NUEVO = 'Troquel nuevo';
 const sinModelo = ['bombones','individuales','trufas','cupcake','panettone'];
 
 const FORMATOS = [
   ['tarta','Tarta'],['pasta','Pasta'],['bombones','Bombones'],['brazo','Brazo'],['catering','Catering'],
-  ['coca','Coca'],['cubetas','Cubetas'],['individuales','Individuales'],['mona','Mona y Figura'],
+  ['coca','Coca'],['cubetas','Cubetas'],['ensaimada','Ensaimada'],['individuales','Individuales'],['mona','Mona y Figura'],
   ['roscones','Roscón'],['trufas','Trufas'],['turron','Turrón'],['cupcake','Cupcake'],['panettone','Panettone']
 ];
 const FORMATO_LABEL = Object.fromEntries(FORMATOS);
@@ -1729,17 +1732,18 @@ function updateModelosProducto(pid, formato) {
   const panel = card.querySelector('.p-modelo-panel');
   const grid = card.querySelector('.p-modelo-grid');
   grid.innerHTML = '';
-  if (!formato || sinModelo.includes(formato)) { panel.classList.remove('visible'); return; }
-  const lista = modelos[formato] || [];
-  if (!lista.length) { panel.classList.remove('visible'); return; }
+  if (!formato) { panel.classList.remove('visible'); return; }
+  const lista = (modelos[formato] || []).concat([TROQUEL_NUEVO]);
+  panel.querySelector('.req').style.display = sinModelo.includes(formato) ? 'none' : '';   // el asterisco solo si es obligatorio
   lista.forEach(nombre => {
     const btn = document.createElement('button');
     btn.className = 'modelo-btn';
     btn.type = 'button';
-    btn.innerHTML = `<span class="modelo-icon">📦</span><span class="modelo-name">${nombre}</span>`;
+    btn.innerHTML = `<span class="modelo-icon">${nombre === TROQUEL_NUEVO ? '✂️' : '📦'}</span><span class="modelo-name">${nombre}</span>`;
     btn.onclick = function() {
+      const yaActivo = btn.classList.contains('active');
       grid.querySelectorAll('.modelo-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+      if (!yaActivo) btn.classList.add('active');   // tocar otra vez lo quita
       grid.classList.remove('error');
     };
     grid.appendChild(btn);
@@ -2000,7 +2004,9 @@ function validarFormulario() {
     marcar('.p-formato-group', !!card.querySelector('.p-formato-group .chip.active'));
 
     // Modelo — obligatorio solo si hay modelos para ese formato
-    if (card.querySelector('.p-modelo-panel').classList.contains('visible')) {
+    // (en los formatos sin lista de modelos, solo sale «Troquel nuevo» y es opcional)
+    const formatoSel = card.querySelector('.p-formato-group .chip.active')?.dataset.value || '';
+    if (card.querySelector('.p-modelo-panel').classList.contains('visible') && !sinModelo.includes(formatoSel)) {
       marcar('.p-modelo-grid', !!card.querySelector('.modelo-btn.active'));
     }
 
