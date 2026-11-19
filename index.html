@@ -1513,7 +1513,7 @@ function crearTarjetaProducto() {
 
   const formatosHTML = FORMATOS.map(([v, l]) =>
     `<div class="chip" data-value="${v}" onclick="setFormato(${pid}, this, '${v}')">${l}</div>`).join('');
-  const tintasHTML = lado => [0,1,2,3,4,5].map(n =>
+  const tintasHTML = lado => [1,2,3,4,5].map(n =>
     `<button type="button" class="tinta-btn" data-n="${n}" onclick="setNumTintasProducto(${pid}, this, ${n}, '${lado}')">${n}</button>`).join('');
 
   card.innerHTML = `
@@ -1564,7 +1564,7 @@ function crearTarjetaProducto() {
     <!-- TINTAS: CARA Y DORSO -->
     <div class="tecnico-bloque">
       <span class="tecnico-bloque-label">Tintas <span class="req">*</span></span>
-      <p class="tintas-ayuda">Elige cuántas tintas lleva cada lado (0 = sin tintas, máximo 5).</p>
+      <p class="tintas-ayuda">Cara: elige cuántas tintas lleva (mínimo 1, máximo 5). Dorso: solo si lleva tintas; si no eliges ninguna, el dorso va sin tintas (toca otra vez el número para quitarlo).</p>
       <div class="tintas-lado">
         <span class="tintas-lado-nombre">Cara</span>
         <div class="tintas-group tintas-num p-tintas-cara">${tintasHTML('cara')}</div>
@@ -1573,7 +1573,7 @@ function crearTarjetaProducto() {
         <div class="p-tintas-filas-cara"></div>
       </div>
       <div class="tintas-lado">
-        <span class="tintas-lado-nombre">Dorso</span>
+        <span class="tintas-lado-nombre">Dorso<br><small style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--gray-mid)">opcional</small></span>
         <div class="tintas-group tintas-num p-tintas-dorso">${tintasHTML('dorso')}</div>
       </div>
       <div class="p-tintas-detalle-dorso" style="display:none; margin:0">
@@ -1751,11 +1751,17 @@ function updateModelosProducto(pid, formato) {
 function setNumTintasProducto(pid, el, num, lado) {
   const card = document.getElementById(`producto-${pid}`);
   const grupo = card.querySelector('.p-tintas-' + lado);
+  const yaActivo = el.classList.contains('active');
   grupo.querySelectorAll('.tinta-btn').forEach(b => b.classList.remove('active'));
   grupo.classList.remove('error');
-  el.classList.add('active');
   const filas = card.querySelector('.p-tintas-filas-' + lado);
   filas.innerHTML = '';
+  // Dorso es opcional: tocar el número elegido otra vez lo quita
+  if (lado === 'dorso' && yaActivo) {
+    card.querySelector('.p-tintas-detalle-dorso').style.display = 'none';
+    return;
+  }
+  el.classList.add('active');
   for (let i = 1; i <= num; i++) filas.appendChild(crearFilaTinta(i));
   card.querySelector('.p-tintas-detalle-' + lado).style.display = num > 0 ? 'block' : 'none';
 }
@@ -2003,7 +2009,7 @@ function validarFormulario() {
 
     // Tintas
     marcar('.p-tintas-cara', !!card.querySelector('.p-tintas-cara .tinta-btn.active'));
-    marcar('.p-tintas-dorso', !!card.querySelector('.p-tintas-dorso .tinta-btn.active'));
+    // (el dorso es opcional: sin número = sin tintas)
 
     // Medidas
     ['.p-largo', '.p-ancho', '.p-alto'].forEach(sel => {
@@ -2715,12 +2721,12 @@ function dibujarFichaPDF(d, idPedido, k) {
       { l: 'Cartón', v: p.carton },
       { l: 'Medidas (mm)', v: `${p.largo} × ${p.ancho} × ${p.alto} (l × an × al)` },
       { l: 'Cantidad', v: `${p.cantidad} uds.` },
-      { l: 'Tintas cara', v: p.tintasCara === '0' ? 'Sin tintas' : p.tintasCara },
+      { l: 'Tintas cara', v: p.tintasCara },
       ...(p.detalleTintasCara ? p.detalleTintasCara.split(' | ') : []).map(t => {
         const [e, ...resto] = t.split(': ');
         return { l: e, v: resto.join(': ') };
       }),
-      { l: 'Tintas dorso', v: p.tintasDorso === '0' ? 'Sin tintas' : p.tintasDorso },
+      { l: 'Tintas dorso', v: (!p.tintasDorso || p.tintasDorso === '0') ? 'Sin tintas' : p.tintasDorso },
       ...(p.detalleTintasDorso ? p.detalleTintasDorso.split(' | ') : []).map(t => {
         const [e, ...resto] = t.split(': ');
         return { l: e, v: resto.join(': ') };
