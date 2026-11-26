@@ -15,7 +15,7 @@
 <link rel="icon" type="image/png" sizes="192x192" href="icono/icon-192.png">
 <link rel="apple-touch-icon" href="icono/apple-touch-icon.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<meta name="app-version" content="2026-11-26-5">
+<meta name="app-version" content="2026-11-27-2">
 <meta http-equiv="Cache-Control" content="no-cache">
 <script>
 // Actualización automática: al abrir, compara su versión con la publicada. Si hay una nueva, se recarga sola.
@@ -1148,7 +1148,12 @@
   }
   /* ESTILO JUMARVA (como la página de Grabados) — formulario Nuevo pedido */
   :root { --gray-bg: #f5f4f1; --gray-light: #e6e5e1; --gray-mid: #77756f; --black: #161615; --radius: 10px; --radius-sm: 10px; --shadow: none; }
-  .navbar { margin-bottom: 1.5rem; }
+  .cab-fija { position: sticky; top: 0; z-index: 100; background: #f5f4f1; box-shadow: 0 1px 0 #e6e5e1; }
+  .cab-fija .navbar { margin-bottom: 0; padding: 12px 2rem; }
+  .cab-fija .progress-bar { position: static; }
+  .cab-fija .area-tabs { padding: 12px 1rem 12px; }
+  body.vista-pedidos #area-pedidos { padding-top: 20px; }
+  @media (max-width: 600px) { .cab-fija .navbar { padding: 10px 1rem; } .cab-fija .progress-bar { padding: 8px 1rem; } .topbar { font-size: 10px; padding: 5px 1rem; } }
   .page-header h1 { font-size: 22px; font-weight: 700; text-transform: none; letter-spacing: 0; line-height: 1.2; }
   .page-header p { font-size: 13px; color: #77756f; }
   .section { border: 1px solid #e6e5e1; border-radius: 10px; padding: 0; box-shadow: none; overflow: hidden; }
@@ -1172,11 +1177,12 @@
 
   /* ÁREA DEL COMERCIAL (estilo Jumarva Grabados) */
   body.vista-pedidos { background: #f5f4f1; }
-  .area-tabs { display: none; max-width: 860px; margin: 0 auto; padding: 14px 1rem 0; gap: 8px; }
+  .section, .producto-card { scroll-margin-top: 170px; }
+  .area-tabs { display: none; max-width: 720px; margin: 0 auto; padding: 14px 1rem 0; gap: 8px; }
   .area-tabs.visible { display: flex; }
   .area-tab { padding: 10px 18px; background: #fff; border: 1px solid #e6e5e1; border-radius: 10px; font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 600; color: #161615; cursor: pointer; }
   .area-tab.activa { background: #161615; border-color: #161615; color: #fff; }
-  #area-pedidos { display: none; max-width: 860px; margin: 0 auto; padding: 16px 1rem 40px; }
+  #area-pedidos { display: none; max-width: 720px; margin: 0 auto; padding: 16px 1rem 40px; }
   .ap-cab { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; margin-bottom: 14px; }
   #area-pedidos h1 { font-size: 19px; font-weight: 700; color: #161615; margin: 0; }
   .ap-sub { font-size: 12px; color: #77756f; margin-top: 2px; }
@@ -1205,7 +1211,10 @@
   .ap-badge { background: #E8201A; color: #fff; border-radius: 100px; padding: 2px 9px; font-size: 11px; font-weight: 600; }
   .ap-acciones { margin-top: 9px; }
   .ap-btn { padding: 8px 14px; font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 600; background: #161615; color: #fff; border: 1px solid #161615; border-radius: 10px; cursor: pointer; }
-  .ap-btn:hover { background: #E8201A; border-color: #E8201A; }
+  .ap-btn:hover { background: #E8201A; border-color: #E8201A; color: #fff; }
+  .ap-acciones { display: flex; flex-wrap: wrap; gap: 8px; }
+  .ap-btn.sec { background: #fff; color: #161615; border-color: #e6e5e1; }
+  .ap-btn.sec:hover { background: #fff; color: #E8201A; border-color: #E8201A; }
   .ap-btn:disabled { opacity: .6; cursor: default; }
   .ap-vacio { text-align: center; color: #77756f; padding: 30px 10px; font-size: 14px; }  .ojo-wrap { position: relative; display: block; }
   .ojo-wrap input { padding-right: 48px; }
@@ -1251,6 +1260,8 @@
 <!-- TOP BAR -->
 <div class="topbar">Uso interno — Departamento Comercial</div>
 
+<!-- CABECERA FIJA: barra Jumarva Presupuesto + pestañas + progreso (se queda arriba al hacer scroll) -->
+<div class="cab-fija">
 <!-- NAVBAR -->
 <div class="navbar">
   <div class="navbar-logo">Jumarva</div>
@@ -1278,13 +1289,35 @@
     </div>
   </div>
 </div>
+</div><!-- /cab-fija -->
 
-<div class="container">
+<div class="container" style="padding-top:20px">
 
   <!-- PAGE HEADER -->
   <div class="page-header">
     <h1>Nuevo presupuesto</h1>
     <p>Rellena el formulario para solicitar el presupuesto. Al enviarlo se genera una ficha técnica en PDF.</p>
+  </div>
+
+  <!-- AVISO: REPITIENDO / EDITANDO UN PEDIDO (viene de «Mis pedidos») -->
+  <div class="section" id="banner-modo" style="display:none">
+    <div class="section-header">
+      <div class="section-num">↻</div>
+      <div class="section-title" id="bm-titulo"></div>
+    </div>
+    <p class="field-hint" id="bm-texto" style="line-height:1.5"></p>
+    <div class="field" id="bm-sino-wrap">
+      <label>¿Hay cambios respecto al pedido anterior? <span class="req">*</span></label>
+      <div class="sino-group" id="bm-sino">
+        <button type="button" class="sino-btn" onclick="setCambiosRep(this)">Sin cambios</button>
+        <button type="button" class="sino-btn" onclick="setCambiosRep(this)">Con cambios</button>
+      </div>
+    </div>
+    <div class="field" id="bm-area-wrap" style="display:none">
+      <label id="bm-area-label"></label>
+      <textarea id="bm-area" placeholder="Describe solo lo que cambia..."></textarea>
+    </div>
+    <div class="field"><button type="button" class="btn-cambiar-cliente" onclick="nuevoPedido()">Cancelar y empezar un pedido nuevo</button></div>
   </div>
 
   <!-- SECCIÓN 1: CLIENTE -->
@@ -2251,6 +2284,20 @@ function validarFormulario() {
     // Adjuntos: opcionales
   }
 
+  // ── Repitiendo / editando un pedido ──
+  if (modoPedido) {
+    const area = document.getElementById('bm-area');
+    let necesitaTexto = modoPedido.tipo === 'editar';
+    if (modoPedido.tipo === 'repetir') {
+      const sel = document.querySelector('#bm-sino .sino-btn.active');
+      document.getElementById('bm-sino').classList.toggle('error', !sel);
+      if (!sel) ok = false;
+      necesitaTexto = sel && sel.textContent.trim() === 'Con cambios';
+    }
+    area.classList.toggle('error', !!necesitaTexto && !area.value.trim());
+    if (necesitaTexto && !area.value.trim()) ok = false;
+  }
+
   // Scroll al primer error
   if (!ok) {
     const firstErr = document.querySelector('.error, .field-error.show, .group-error.show');
@@ -2604,6 +2651,7 @@ let pedidosPrevios = [];
 async function cargarPedidosPrevios() {
   const panel = document.getElementById('panel-repeticion');
   const lista = document.getElementById('lista-repeticion');
+  if (modoPedido) { panel.style.display = 'none'; return; }   // repitiendo/editando desde «Mis pedidos»: el formulario ya viene relleno
   const num = (document.getElementById('numero-cliente').value || '').trim();
   const esRep = document.querySelector('.tipo-btn-sm.active .tipo-label-sm')?.textContent === 'Repetición';
   if (!esRep || !num || clienteNuevoActivo) { panel.style.display = 'none'; return; }
@@ -2756,6 +2804,11 @@ function apPintar() {
     const bt = document.createElement('button'); bt.type = 'button'; bt.className = 'ap-btn'; bt.textContent = 'Descargar ficha (PDF)';
     bt.onclick = () => descargarFichaMiPedido(p.id, bt);
     ac.appendChild(bt);
+    [['Repetir', 'repetir'], ['Editar', 'editar']].forEach(([nombre, modo]) => {
+      const b2 = document.createElement('button'); b2.type = 'button'; b2.className = 'ap-btn sec'; b2.textContent = nombre;
+      b2.onclick = () => abrirPedidoDesdeLista(p.id, modo, b2);
+      ac.appendChild(b2);
+    });
     c.append(top, pr, meta, ac);
     panelGrupo.appendChild(c);
   });
@@ -2831,6 +2884,16 @@ function rellenarDesdePedido(i) {
   const d = (pedidosPrevios[i] || {}).datos;
   if (!d) return;
   if (!confirm('Se van a sustituir los productos del formulario por los de este pedido. ¿Continuar?')) return;
+  aplicarProductos(d);
+  document.getElementById('entrega').value = d.entrega || '';
+  document.getElementById('fecha-entrega').value = '';   // la fecha la pone el comercial
+  document.querySelectorAll('.error').forEach(el => el.classList.remove('error'));
+  document.getElementById('sec-productos').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  updateProgress();
+}
+
+// Sustituye las tarjetas de producto del formulario por las de un pedido guardado
+function aplicarProductos(d) {
   const cont = document.getElementById('productos-container');
   cont.innerHTML = '';
   productoCount = 0;
@@ -2840,10 +2903,91 @@ function rellenarDesdePedido(i) {
     rellenarProducto(card, p);
   });
   if (!cont.children.length) anadirProducto();
+}
+
+// ── REPETIR / EDITAR UN PEDIDO DESDE «MIS PEDIDOS» ──────
+let modoPedido = null;   // { tipo: 'repetir' | 'editar', id, version }
+
+function setCambiosRep(el) {
+  const g = el.closest('.sino-group');
+  g.querySelectorAll('.sino-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active'); g.classList.remove('error');
+  const con = el.textContent.trim() === 'Con cambios';
+  document.getElementById('bm-area-wrap').style.display = con ? 'block' : 'none';
+  document.getElementById('bm-area-label').textContent = '¿Qué cambia respecto al pedido anterior? *';
+  if (!con) document.getElementById('bm-area').value = '';
+}
+
+function actualizarBannerModo() {
+  const b = document.getElementById('banner-modo');
+  if (!modoPedido) { b.style.display = 'none'; return; }
+  const rep = modoPedido.tipo === 'repetir';
+  document.getElementById('bm-titulo').textContent = rep ? 'Repitiendo el pedido ' + modoPedido.id : 'Editando el pedido ' + modoPedido.id + ' (versión ' + modoPedido.version + ' → ' + (modoPedido.version + 1) + ')';
+  document.getElementById('bm-texto').textContent = rep
+    ? 'El formulario viene relleno con los datos de ese pedido. Pon la fecha de entrega y, si algo cambia, márcalo abajo y descríbelo. Se creará un pedido nuevo con otro ID. No hace falta adjuntar imágenes.'
+    : 'Se guardará con el mismo ID y sustituirá al anterior: en el correo y en la ficha aparecerá como «pedido editado». Los archivos adjuntos no se conservan; si hacen falta, vuelve a adjuntarlos.';
+  document.getElementById('bm-sino-wrap').style.display = rep ? 'block' : 'none';
+  document.querySelectorAll('#bm-sino .sino-btn').forEach(x => x.classList.remove('active'));
+  document.getElementById('bm-area').value = '';
+  document.getElementById('bm-area-wrap').style.display = rep ? 'none' : 'block';
+  document.getElementById('bm-area-label').textContent = '¿Qué has cambiado? *';
+  document.getElementById('bm-area').placeholder = rep ? 'Describe solo lo que cambia...' : 'Describe qué se ha corregido o cambiado en este pedido...';
+  b.style.display = 'block';
+}
+
+async function abrirPedidoDesdeLista(id, modo, btn) {
+  if (document.getElementById('cliente').value.trim() && !confirm('Hay un pedido a medias en «Nuevo pedido». Se sustituirá. ¿Continuar?')) return;
+  const txt = btn.textContent;
+  btn.disabled = true; btn.textContent = 'Cargando...';
+  try {
+    const r = await (await fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify({ accion: 'detallePedido', codigo: codigoActual || leerCodigo(), id: id }) })).json();
+    if (!r.ok) throw new Error(r.error || 'No se encontró el pedido.');
+    const d = r.pedido.datos || {};
+    nuevoPedido();                       // limpia el formulario
+    mostrarVista('nuevo');
+    modoPedido = { tipo: modo, id: r.pedido.id, version: Number(r.pedido.version) || 1, repetidoDe: d.repetidoDe || '', repeticionCambios: d.repeticionCambios || '' };
+    cargarPedidoEnFormulario(d, modo);
+    actualizarBannerModo();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } catch (e) {
+    alert('No se pudo abrir el pedido: ' + e.message);
+  }
+  btn.disabled = false; btn.textContent = txt;
+}
+
+function cargarPedidoEnFormulario(d, modo) {
+  const clic = (sel, fn) => { const el = Array.from(document.querySelectorAll(sel)).find(fn); if (el) el.click(); return el; };
+  // Cliente: el de la base de datos si existe; si no, con los datos guardados en el pedido
+  const num = String(d.numeroCliente || '').trim();
+  const enBD = num && clientesDB.find(x => String(x.numeroCliente || '').trim() === num);
+  seleccionarCliente(enBD || { cliente: d.cliente, nombreComercial: d.nombreTienda || d.cliente, numeroCliente: num, email: d.email, telefonoMovil: d.telefono, poblacion: d.poblacion });
+  if (!enBD) document.getElementById('cliente').value = d.cliente || '';
+  if (modo === 'editar') document.getElementById('id-value').textContent = modoPedido.id;
+
+  // Tipo de pedido (muestra): al repetir siempre es «Repetición»
+  const muestra = modo === 'repetir' ? 'Repetición' : d.muestra;
+  clic('.tipo-btn-sm', b => b.querySelector('.tipo-label-sm').textContent === muestra);
+
+  aplicarProductos(d);
   document.getElementById('entrega').value = d.entrega || '';
-  document.getElementById('fecha-entrega').value = '';   // la fecha la pone el comercial
+  document.getElementById('fecha-entrega').value = modo === 'editar' ? (d.fechaEntrega || '') : '';
+  const dest = d.destinos || ['abel'];
+  document.getElementById('dest-abel').checked = dest.includes('abel');
+  document.getElementById('dest-rafa').checked = dest.includes('rafa');
+
+  // Briefing de diseño: solo al editar (en una repetición no hay briefing)
+  if (modo === 'editar' && muestra !== 'Repetición' && d.tipoTrabajo) {
+    clic('.tipo-btn', b => b.querySelector('.tipo-label').textContent === d.tipoTrabajo);
+    if (d.tipoTrabajo === 'Diseño existente') {
+      document.querySelector('#bloque-existente input[type=text]').value = d.referenciaAnterior || '';
+      if (d.queCambiar === 'Sin cambios') clic('#cambios-sino .sino-btn', b => b.textContent.trim() === 'No');
+      else if (d.queCambiar) { clic('#cambios-sino .sino-btn', b => b.textContent.trim() === 'Sí'); document.getElementById('cambios-texto').value = d.queCambiar; }
+      document.getElementById('notas-existente').value = d.notas || '';
+    } else {
+      const ta = document.querySelector('#bloque-nuevo textarea'); if (ta) ta.value = d.descripcionDiseno || '';
+    }
+  }
   document.querySelectorAll('.error').forEach(el => el.classList.remove('error'));
-  document.getElementById('sec-productos').scrollIntoView({ behavior: 'smooth', block: 'start' });
   updateProgress();
 }
 
@@ -2935,7 +3079,7 @@ function dibujarFichaPDF(d, idPedido, k) {
   doc.setFont('helvetica', 'bold'); doc.setFontSize(15);
   doc.text('JUMARVA', M, 10.5);
   doc.setFont('helvetica', 'normal'); doc.setFontSize(8);
-  doc.text('FICHA TÉCNICA · SOLICITUD DE PRESUPUESTO', W - M, 7, { align: 'right' });
+  doc.text('FICHA TÉCNICA · SOLICITUD DE PRESUPUESTO' + (Number(d.version) > 1 ? ' · PEDIDO EDITADO (v' + d.version + ')' : ''), W - M, 7, { align: 'right' });
   doc.text((d.fechaPedido ? new Date(d.fechaPedido + 'T12:00:00') : new Date()).toLocaleDateString('es-ES'), W - M, 12, { align: 'right' });
   y = 20;
 
@@ -3013,7 +3157,9 @@ function dibujarFichaPDF(d, idPedido, k) {
     { l: 'ID de pedido', v: idPedido },
     { l: 'Muestra', v: d.muestra },
     { l: 'Cliente', v: d.cliente },
-    { l: 'Nº de cliente', v: d.numeroCliente || 'Nuevo / pendiente' }
+    { l: 'Nº de cliente', v: d.numeroCliente || 'Nuevo / pendiente' },
+    Number(d.version) > 1 ? { l: 'PEDIDO EDITADO', v: `Versión ${d.version}. Sustituye a la anterior. Cambios: ${d.motivoEdicion || '—'}`, ancho: true } : null,
+    d.repetidoDe ? { l: 'Repetición de', v: `${d.repetidoDe} · ${d.repeticionCambios && d.repeticionCambios !== 'Sin cambios' ? 'Con cambios: ' + d.repeticionCambios : 'Sin cambios'}`, ancho: true } : null
   ]);
 
   // Productos
@@ -3208,6 +3354,18 @@ async function submitForm() {
     const datos = recogerDatos();
     datos.codigo = codigoActual;
     datos.nombresArchivos = files.map(f => f.name);
+    if (modoPedido) {
+      const nota = document.getElementById('bm-area').value.trim();
+      if (modoPedido.tipo === 'repetir') {
+        datos.repetidoDe = modoPedido.id;
+        datos.repeticionCambios = document.querySelector('#bm-sino .sino-btn.active')?.textContent.trim() === 'Con cambios' ? nota : 'Sin cambios';
+      } else {
+        datos.editaId = modoPedido.id;
+        datos.version = modoPedido.version + 1;
+        datos.motivoEdicion = nota;
+        if (modoPedido.repetidoDe) { datos.repetidoDe = modoPedido.repetidoDe; datos.repeticionCambios = modoPedido.repeticionCambios || ''; }
+      }
+    }
 
     if (files.length > 0) {
       btnText.textContent = 'Optimizando archivos...';
@@ -3218,7 +3376,7 @@ async function submitForm() {
 
     // Ficha técnica en PDF (si falla, el envío continúa sin ella)
     ultimaFicha = null;
-    const idLocal = (document.getElementById('id-value').textContent || '').trim();
+    const idLocal = modoPedido && modoPedido.tipo === 'editar' ? modoPedido.id : (document.getElementById('id-value').textContent || '').trim();
     const idArchivo = (idLocal && idLocal !== '—' ? idLocal : 'presupuesto').replace(/[^\w-]/g, '_');
     try {
       const pdf = generarFichaPDF(datos, idLocal && idLocal !== '—' ? idLocal : '—');
@@ -3242,6 +3400,8 @@ async function submitForm() {
     if (json.ok) {
       const idPedido = json.id || document.getElementById('id-value').textContent || '—';
       document.getElementById('success-id').textContent = idPedido;
+      document.querySelector('#success-screen h2').textContent = modoPedido && modoPedido.tipo === 'editar' ? 'Pedido editado' : 'Presupuesto enviado';
+      misPedidosHora = 0;   // «Mis pedidos» se vuelve a cargar
       document.getElementById('btn-descargar-ficha').style.display = ultimaFicha ? 'inline-block' : 'none';
       document.getElementById('success-screen').classList.add('show');
       document.body.style.overflow = 'hidden';
@@ -3271,6 +3431,8 @@ async function submitForm() {
 }
 
 function nuevoPedido() {
+  modoPedido = null; actualizarBannerModo();
+  document.querySelector('#success-screen h2').textContent = 'Presupuesto enviado';
   document.getElementById('success-screen').classList.remove('show');
   document.body.style.overflow = '';
 
