@@ -15,7 +15,7 @@
 <link rel="icon" type="image/png" sizes="192x192" href="icono/icon-192.png">
 <link rel="apple-touch-icon" href="icono/apple-touch-icon.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<meta name="app-version" content="2026-11-27-5">
+<meta name="app-version" content="2026-11-27-6">
 <meta http-equiv="Cache-Control" content="no-cache">
 <script>
 // Actualización automática: al abrir, compara su versión con la publicada. Si hay una nueva, se recarga sola.
@@ -1219,6 +1219,10 @@
   .ap-btn.sec { background: #fff; color: #161615; border-color: #e6e5e1; }
   .ap-btn.sec:hover { background: #fff; color: #E8201A; border-color: #E8201A; }
   .ap-btn:disabled { opacity: .6; cursor: default; }
+  .ap-muestra { display: inline-flex; align-items: center; gap: 7px; margin-top: 10px; font-size: 11px; color: #77756f; cursor: pointer; }
+  .ap-muestra input { width: 16px; height: 16px; margin: 0; accent-color: #2e7d4f; cursor: pointer; }
+  .ap-muestra input:disabled { cursor: default; }
+  .ap-muestra.hecha { color: #2e7d4f; }
   .ap-vacio { text-align: center; color: #77756f; padding: 30px 10px; font-size: 14px; }  .ojo-wrap { position: relative; display: block; }
   .ojo-wrap input { padding-right: 48px; }
   .ojo-btn { position: absolute; right: 6px; top: 0; height: calc(100% - 8px); width: 40px; background: none; border: 0; cursor: pointer; font-size: 20px; line-height: 1; color: var(--gray-mid); }
@@ -2813,6 +2817,7 @@ function apPintar() {
       ac.appendChild(b2);
     });
     c.append(top, pr, meta, ac);
+    if (p.llevaMuestra) c.appendChild(apMuestra(p));
     panelGrupo.appendChild(c);
   });
   if (lista.length > apLimite) {
@@ -2822,6 +2827,29 @@ function apPintar() {
     mas.onclick = () => { apLimite += 50; apPintar(); };
     cont.appendChild(mas);
   }
+}
+
+// Casilla discreta «Muestra entregada» (solo en repeticiones y pedidos editados)
+function apMuestra(p) {
+  const l = document.createElement('label'); l.className = 'ap-muestra' + (p.entregada ? ' hecha' : '');
+  const ch = document.createElement('input'); ch.type = 'checkbox'; ch.checked = !!p.entregada;
+  ch.disabled = !!p.entregada && !p.puedeDeshacer;
+  const t = document.createElement('span');
+  t.textContent = p.entregada ? 'Muestra entregada · ' + p.entregada : 'Muestra entregada';
+  ch.onchange = async () => {
+    const marcar = ch.checked;
+    ch.disabled = true; t.textContent = 'Guardando...';
+    try {
+      const r = await (await fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify({ accion: 'marcarMuestra', codigo: codigoActual || leerCodigo(), id: p.id, entregada: marcar }) })).json();
+      if (!r.ok) throw new Error(r.error || 'No se pudo guardar.');
+      p.entregada = r.entregada; p.puedeDeshacer = r.puedeDeshacer;
+    } catch (e) {
+      alert('No se pudo guardar: ' + e.message);
+    }
+    apPintar();
+  };
+  l.append(ch, t);
+  return l;
 }
 
 async function descargarFichaMiPedido(id, btn) {
