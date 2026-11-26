@@ -15,6 +15,33 @@
 <link rel="icon" type="image/png" sizes="192x192" href="icono/icon-192.png">
 <link rel="apple-touch-icon" href="icono/apple-touch-icon.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<meta name="app-version" content="2026-11-26-5">
+<meta http-equiv="Cache-Control" content="no-cache">
+<script>
+// Actualización automática: al abrir, compara su versión con la publicada. Si hay una nueva, se recarga sola.
+(function () {
+  var mia = (document.querySelector('meta[name="app-version"]') || {}).content;
+  function version(txt) { var m = /<meta name="app-version" content="([^"]+)"/.exec(txt); return m ? m[1] : null; }
+  function aviso(nueva) {
+    if (document.getElementById('update-aviso')) return;
+    var d = document.createElement('div'); d.id = 'update-aviso';
+    d.innerHTML = '<span>Hay una versión nueva</span><button type="button">Actualizar</button>';
+    d.querySelector('button').onclick = function () { location.replace(location.pathname + '?v=' + nueva); };
+    document.body.appendChild(d);
+  }
+  function comprobar(auto) {
+    fetch(location.pathname + '?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.text(); }).then(function (txt) {
+      var nueva = version(txt);
+      if (!nueva || nueva === mia) return;
+      var intentos = Number(sessionStorage.getItem('jumarva_upd_' + nueva) || 0);
+      if (auto && intentos < 2) { sessionStorage.setItem('jumarva_upd_' + nueva, intentos + 1); location.replace(location.pathname + '?v=' + nueva); }
+      else aviso(nueva);
+    }).catch(function () {});
+  }
+  comprobar(true);   // al abrir: recarga sola, aún no se ha escrito nada
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) comprobar(false); });   // al volver a la app: solo avisa
+})();
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1119,6 +1146,30 @@
     border-radius: var(--radius-sm);
     margin-bottom: 8px;
   }
+  /* ESTILO JUMARVA (como la página de Grabados) — formulario Nuevo pedido */
+  :root { --gray-bg: #f5f4f1; --gray-light: #e6e5e1; --gray-mid: #77756f; --black: #161615; --radius: 10px; --radius-sm: 10px; --shadow: none; }
+  .navbar { margin-bottom: 1.5rem; }
+  .page-header h1 { font-size: 22px; font-weight: 700; text-transform: none; letter-spacing: 0; line-height: 1.2; }
+  .page-header p { font-size: 13px; color: #77756f; }
+  .section { border: 1px solid #e6e5e1; border-radius: 10px; padding: 0; box-shadow: none; overflow: hidden; }
+  .section-header { margin: 0; padding: 13px 16px; border-bottom: 1px solid #e6e5e1; gap: 8px; }
+  .section-num { width: 20px; height: 20px; font-size: 11px; background: #161615; }
+  .section-title { font-size: 12px; font-weight: 600; letter-spacing: .06em; color: #77756f; }
+  .section > :not(.section-header) { margin-left: 16px; margin-right: 16px; }
+  .section > .section-header + * { margin-top: 16px; }
+  .section > :last-child { margin-bottom: 16px; }
+  .field label, .modelo-panel label { font-size: 11px; font-weight: 600; letter-spacing: .06em; color: #77756f; }
+  .field input, .field select, .field textarea { border: 1px solid #e6e5e1; border-radius: 10px; }
+  .chip, .prio-btn, .tinta-btn, .tinta-tipo-btn, .sino-btn, .btn-submit, .btn-add-producto { border-radius: 10px; }
+  .chip, .prio-btn, .tinta-btn, .tinta-tipo-btn, .sino-btn, .modelo-btn, .tipo-btn, .tipo-btn-sm { border-width: 1px; }
+  .producto-card { border: 1px solid #e6e5e1; background: #f5f4f1; }
+  .producto-card-title { color: #161615; font-weight: 600; letter-spacing: .06em; }
+  .btn-submit { font-weight: 600; letter-spacing: .02em; text-transform: none; font-size: 14px; }
+  .progress-bar { border-bottom: 1px solid #e6e5e1; }
+  .step-dot { border-width: 1px; }
+  #update-aviso { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 999; background: #161615; color: #fff; border-radius: 10px; padding: 10px 16px; font-size: 13px; font-weight: 600; display: flex; gap: 12px; align-items: center; box-shadow: 0 4px 16px rgba(0,0,0,.2); }
+  #update-aviso button { background: #E8201A; color: #fff; border: 0; border-radius: 8px; padding: 6px 12px; font-family: inherit; font-weight: 600; cursor: pointer; }
+
   /* ÁREA DEL COMERCIAL (estilo Jumarva Grabados) */
   body.vista-pedidos { background: #f5f4f1; }
   .area-tabs { display: none; max-width: 860px; margin: 0 auto; padding: 14px 1rem 0; gap: 8px; }
