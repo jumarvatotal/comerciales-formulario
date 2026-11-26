@@ -1119,33 +1119,44 @@
     border-radius: var(--radius-sm);
     margin-bottom: 8px;
   }
-  /* ÁREA DEL COMERCIAL */
-  .area-tabs { display: none; background: var(--white); border-bottom: 1px solid var(--gray-light); }
+  /* ÁREA DEL COMERCIAL (estilo Jumarva Grabados) */
+  body.vista-pedidos { background: #f5f4f1; }
+  .area-tabs { display: none; max-width: 860px; margin: 0 auto; padding: 14px 1rem 0; gap: 8px; }
   .area-tabs.visible { display: flex; }
-  .area-tab { flex: 1; padding: 14px 8px; background: none; border: 0; border-bottom: 3px solid transparent; font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--gray-mid); cursor: pointer; }
-  .area-tab.activa { color: var(--red); border-bottom-color: var(--red); }
-  #area-pedidos { display: none; max-width: 860px; margin: 0 auto; padding: 18px 1rem 40px; }
-  #area-pedidos h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
-  .ap-sub { font-size: 13px; color: var(--gray-mid); margin-bottom: 14px; }
-  .ap-filtros { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 8px; }
-  .ap-filtros label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--gray-mid); display: block; margin-bottom: 3px; }
-  .ap-filtros input, .ap-filtros select { width: 100%; padding: 10px; border: 1.5px solid var(--gray-light); border-radius: var(--radius-sm); font-family: 'Montserrat', sans-serif; font-size: 14px; background: #fff; }
-  .ap-filtros input:focus, .ap-filtros select:focus { outline: none; border-color: var(--red); box-shadow: 0 0 0 3px rgba(232,32,26,.1); }
-  .ap-barra { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--gray-mid); margin: 6px 0 4px; }
-  .ap-barra a { color: var(--red); font-weight: 600; cursor: pointer; text-decoration: none; }
-  .ap-grupo { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--gray-mid); margin: 18px 0 6px; }
-  .ap-card { background: #fff; border: 1px solid var(--gray-light); border-left: 4px solid var(--red); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 8px; }
+  .area-tab { padding: 10px 18px; background: #fff; border: 1px solid #e6e5e1; border-radius: 10px; font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 600; color: #161615; cursor: pointer; }
+  .area-tab.activa { background: #161615; border-color: #161615; color: #fff; }
+  #area-pedidos { display: none; max-width: 860px; margin: 0 auto; padding: 16px 1rem 40px; }
+  .ap-cab { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; margin-bottom: 14px; }
+  #area-pedidos h1 { font-size: 19px; font-weight: 700; color: #161615; margin: 0; }
+  .ap-sub { font-size: 12px; color: #77756f; margin-top: 2px; }
+  .ap-stats { display: flex; gap: 18px; }
+  .ap-stat b { display: block; font-size: 18px; font-weight: 700; color: #161615; line-height: 1.1; }
+  .ap-stat span { font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: #77756f; }
+  .ap-buscar { position: relative; margin-bottom: 10px; }
+  .ap-buscar svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #77756f; }
+  .ap-buscar input { width: 100%; padding: 13px 14px 13px 42px; border: 1px solid #e6e5e1; border-radius: 10px; background: #fff; font-family: 'Montserrat', sans-serif; font-size: 14px; }
+  .ap-filtros { display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: flex-end; margin-bottom: 8px; }
+  .ap-filtros label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: #77756f; display: block; margin-bottom: 3px; }
+  .ap-filtros select, .ap-filtros input[type=date] { padding: 8px 10px; border: 1px solid #e6e5e1; border-radius: 10px; font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 500; background: #fff; color: #161615; }
+  .ap-buscar input:focus, .ap-filtros select:focus, .ap-filtros input:focus { outline: none; border-color: #E8201A; box-shadow: 0 0 0 3px rgba(232,32,26,.1); }
+  .ap-barra { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #77756f; margin: 8px 0 10px; }
+  .ap-barra a { color: #E8201A; font-weight: 600; cursor: pointer; }
+  .ap-panel { background: #fff; border: 1px solid #e6e5e1; border-radius: 10px; margin-bottom: 14px; overflow: hidden; }
+  .ap-grupo { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: #77756f; padding: 13px 16px; border-bottom: 1px solid #e6e5e1; }
+  .ap-card { padding: 12px 16px; border-bottom: 1px solid #f0efeb; }
+  .ap-card:last-child { border-bottom: 0; }
   .ap-card-top { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
-  .ap-cliente { font-weight: 700; font-size: 15px; }
-  .ap-fecha { font-size: 12px; color: var(--gray-mid); white-space: nowrap; }
-  .ap-prod { font-size: 13px; color: #444; margin: 4px 0; }
-  .ap-meta { font-size: 12px; color: var(--gray-mid); display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; }
-  .ap-badge { background: var(--red-light); color: var(--red); border: 1px solid var(--red-border); border-radius: 100px; padding: 1px 8px; font-size: 11px; font-weight: 700; }
-  .ap-acciones { margin-top: 8px; }
-  .ap-btn { padding: 8px 14px; font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 700; background: #fff; color: var(--red); border: 2px solid var(--red); border-radius: var(--radius-sm); cursor: pointer; }
+  .ap-cliente { font-weight: 700; font-size: 14px; color: #161615; }
+  .ap-fecha { font-size: 12px; color: #77756f; white-space: nowrap; }
+  .ap-prod { font-size: 13px; color: #161615; margin: 3px 0; }
+  .ap-meta { font-size: 11px; color: #77756f; display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; }
+  .ap-meta span:not(.ap-badge) { background: #f0efeb; border-radius: 100px; padding: 2px 9px; }
+  .ap-badge { background: #E8201A; color: #fff; border-radius: 100px; padding: 2px 9px; font-size: 11px; font-weight: 600; }
+  .ap-acciones { margin-top: 9px; }
+  .ap-btn { padding: 8px 14px; font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 600; background: #161615; color: #fff; border: 1px solid #161615; border-radius: 10px; cursor: pointer; }
+  .ap-btn:hover { background: #E8201A; border-color: #E8201A; }
   .ap-btn:disabled { opacity: .6; cursor: default; }
-  .ap-vacio { text-align: center; color: var(--gray-mid); padding: 30px 10px; font-size: 14px; }
-  .ojo-wrap { position: relative; display: block; }
+  .ap-vacio { text-align: center; color: #77756f; padding: 30px 10px; font-size: 14px; }  .ojo-wrap { position: relative; display: block; }
   .ojo-wrap input { padding-right: 48px; }
   .ojo-btn { position: absolute; right: 6px; top: 0; height: calc(100% - 8px); width: 40px; background: none; border: 0; cursor: pointer; font-size: 20px; line-height: 1; color: var(--gray-mid); }
   .ojo-btn:hover { color: var(--red); }
@@ -1445,16 +1456,17 @@
 
 <!-- ÁREA DEL COMERCIAL: MIS PEDIDOS -->
 <div id="area-pedidos">
-  <h1>Mis pedidos</h1>
-  <p class="ap-sub">Busca tus pedidos por cliente, producto o fechas y descarga de nuevo su ficha técnica.</p>
+  <div class="ap-cab">
+    <div><h1>Mis pedidos</h1><p class="ap-sub">Busca tus pedidos y descarga de nuevo su ficha técnica.</p></div>
+    <div class="ap-stats"><div class="ap-stat"><b id="ap-n-total">0</b><span>Pedidos</span></div><div class="ap-stat"><b id="ap-n-clientes">0</b><span>Clientes</span></div></div>
+  </div>
+  <div class="ap-buscar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input type="search" id="ap-buscar" placeholder="Buscar por cliente, ID o producto..." autocomplete="off" oninput="apReiniciar()"></div>
   <div class="ap-filtros">
-    <div><label for="ap-buscar">Cliente, ID o producto</label><input type="search" id="ap-buscar" placeholder="Buscar..." autocomplete="off" oninput="apReiniciar()"></div>
-    <div><label for="ap-producto">Tipo de producto</label><select id="ap-producto" onchange="apReiniciar()"><option value="">Todos los productos</option></select></div>
+    <div><label for="ap-producto">Producto</label><select id="ap-producto" onchange="apReiniciar()"><option value="">Todos los productos</option></select></div>
     <div><label for="ap-desde">Desde</label><input type="date" id="ap-desde" onchange="apReiniciar()"></div>
     <div><label for="ap-hasta">Hasta</label><input type="date" id="ap-hasta" onchange="apReiniciar()"></div>
     <div><label for="ap-agrupar">Ordenar por</label><select id="ap-agrupar" onchange="apReiniciar()"><option value="fecha">Fecha (por meses)</option><option value="cliente">Cliente</option></select></div>
-  </div>
-  <div class="ap-barra"><span id="ap-contador"></span><a onclick="apLimpiar()">Quitar filtros</a></div>
+  </div>  <div class="ap-barra"><span id="ap-contador"></span><a onclick="apLimpiar()">Quitar filtros</a></div>
   <div id="ap-estado" class="ap-vacio"></div>
   <div id="ap-lista"></div>
 </div>
@@ -2602,6 +2614,7 @@ function mostrarVista(v) {
   document.querySelector('.container').style.display = ped ? 'none' : '';
   document.getElementById('progress-bar').style.display = ped ? 'none' : '';
   document.getElementById('area-pedidos').style.display = ped ? 'block' : 'none';
+  document.body.classList.toggle('vista-pedidos', ped);
   window.scrollTo({ top: 0 });
   if (ped) cargarMisPedidos(Date.now() - misPedidosHora > 60000);   // se recarga si tiene más de 1 minuto
 }
@@ -2657,6 +2670,8 @@ function apPintar() {
 
   const estado = document.getElementById('ap-estado'), cont = document.getElementById('ap-lista');
   cont.innerHTML = '';
+  document.getElementById('ap-n-total').textContent = misPedidosDB.length;
+  document.getElementById('ap-n-clientes').textContent = new Set(misPedidosDB.map(x => apNorm(x.cliente))).size;
   document.getElementById('ap-contador').textContent = lista.length + (lista.length === 1 ? ' pedido' : ' pedidos') + (lista.length !== misPedidosDB.length ? ' de ' + misPedidosDB.length : '');
   if (!lista.length) {
     estado.style.display = 'block';
@@ -2665,7 +2680,7 @@ function apPintar() {
   }
   estado.style.display = 'none';
 
-  let grupoActual = null;
+  let grupoActual = null, panelGrupo = null;
   lista.slice(0, apLimite).forEach(p => {
     const grupo = porCliente ? (p.cliente || 'Sin nombre') : (AP_MESES[Number(p.fecha.slice(5, 7)) - 1] || '') + ' ' + p.fecha.slice(0, 4);
     if (grupo !== grupoActual) {
@@ -2673,7 +2688,8 @@ function apPintar() {
       const h = document.createElement('div');
       h.className = 'ap-grupo';
       h.textContent = grupo;
-      cont.appendChild(h);
+      panelGrupo = document.createElement('div'); panelGrupo.className = 'ap-panel';
+      panelGrupo.appendChild(h); cont.appendChild(panelGrupo);
     }
     const c = document.createElement('div');
     c.className = 'ap-card';
@@ -2690,7 +2706,7 @@ function apPintar() {
     bt.onclick = () => descargarFichaMiPedido(p.id, bt);
     ac.appendChild(bt);
     c.append(top, pr, meta, ac);
-    cont.appendChild(c);
+    panelGrupo.appendChild(c);
   });
   if (lista.length > apLimite) {
     const mas = document.createElement('button');
