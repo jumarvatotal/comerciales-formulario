@@ -1119,6 +1119,32 @@
     border-radius: var(--radius-sm);
     margin-bottom: 8px;
   }
+  /* ÁREA DEL COMERCIAL */
+  .area-tabs { display: none; background: var(--white); border-bottom: 1px solid var(--gray-light); }
+  .area-tabs.visible { display: flex; }
+  .area-tab { flex: 1; padding: 14px 8px; background: none; border: 0; border-bottom: 3px solid transparent; font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--gray-mid); cursor: pointer; }
+  .area-tab.activa { color: var(--red); border-bottom-color: var(--red); }
+  #area-pedidos { display: none; max-width: 860px; margin: 0 auto; padding: 18px 1rem 40px; }
+  #area-pedidos h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  .ap-sub { font-size: 13px; color: var(--gray-mid); margin-bottom: 14px; }
+  .ap-filtros { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 8px; }
+  .ap-filtros label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--gray-mid); display: block; margin-bottom: 3px; }
+  .ap-filtros input, .ap-filtros select { width: 100%; padding: 10px; border: 1.5px solid var(--gray-light); border-radius: var(--radius-sm); font-family: 'Montserrat', sans-serif; font-size: 14px; background: #fff; }
+  .ap-filtros input:focus, .ap-filtros select:focus { outline: none; border-color: var(--red); box-shadow: 0 0 0 3px rgba(232,32,26,.1); }
+  .ap-barra { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--gray-mid); margin: 6px 0 4px; }
+  .ap-barra a { color: var(--red); font-weight: 600; cursor: pointer; text-decoration: none; }
+  .ap-grupo { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--gray-mid); margin: 18px 0 6px; }
+  .ap-card { background: #fff; border: 1px solid var(--gray-light); border-left: 4px solid var(--red); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 8px; }
+  .ap-card-top { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+  .ap-cliente { font-weight: 700; font-size: 15px; }
+  .ap-fecha { font-size: 12px; color: var(--gray-mid); white-space: nowrap; }
+  .ap-prod { font-size: 13px; color: #444; margin: 4px 0; }
+  .ap-meta { font-size: 12px; color: var(--gray-mid); display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; }
+  .ap-badge { background: var(--red-light); color: var(--red); border: 1px solid var(--red-border); border-radius: 100px; padding: 1px 8px; font-size: 11px; font-weight: 700; }
+  .ap-acciones { margin-top: 8px; }
+  .ap-btn { padding: 8px 14px; font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 700; background: #fff; color: var(--red); border: 2px solid var(--red); border-radius: var(--radius-sm); cursor: pointer; }
+  .ap-btn:disabled { opacity: .6; cursor: default; }
+  .ap-vacio { text-align: center; color: var(--gray-mid); padding: 30px 10px; font-size: 14px; }
   .ojo-wrap { position: relative; display: block; }
   .ojo-wrap input { padding-right: 48px; }
   .ojo-btn { position: absolute; right: 6px; top: 0; height: calc(100% - 8px); width: 40px; background: none; border: 0; cursor: pointer; font-size: 20px; line-height: 1; color: var(--gray-mid); }
@@ -1168,6 +1194,12 @@
   <div class="navbar-logo">Jumarva</div>
   <div class="navbar-title">Presupuesto</div>
   <div class="date-badge" id="date-badge"></div>
+</div>
+
+<!-- ÁREA DEL COMERCIAL: pestañas (se muestran al entrar con el código) -->
+<div class="area-tabs" id="area-tabs">
+  <button type="button" class="area-tab activa" id="tab-nuevo" onclick="mostrarVista('nuevo')">Nuevo pedido</button>
+  <button type="button" class="area-tab" id="tab-pedidos" onclick="mostrarVista('pedidos')">Mis pedidos</button>
 </div>
 
 <!-- PROGRESS BAR -->
@@ -1409,6 +1441,22 @@
     ✓ Presupuesto enviado correctamente.
   </div>
 
+</div>
+
+<!-- ÁREA DEL COMERCIAL: MIS PEDIDOS -->
+<div id="area-pedidos">
+  <h1>Mis pedidos</h1>
+  <p class="ap-sub">Busca tus pedidos por cliente, producto o fechas y descarga de nuevo su ficha técnica.</p>
+  <div class="ap-filtros">
+    <div><label for="ap-buscar">Cliente, ID o producto</label><input type="search" id="ap-buscar" placeholder="Buscar..." autocomplete="off" oninput="apReiniciar()"></div>
+    <div><label for="ap-producto">Tipo de producto</label><select id="ap-producto" onchange="apReiniciar()"><option value="">Todos los productos</option></select></div>
+    <div><label for="ap-desde">Desde</label><input type="date" id="ap-desde" onchange="apReiniciar()"></div>
+    <div><label for="ap-hasta">Hasta</label><input type="date" id="ap-hasta" onchange="apReiniciar()"></div>
+    <div><label for="ap-agrupar">Ordenar por</label><select id="ap-agrupar" onchange="apReiniciar()"><option value="fecha">Fecha (por meses)</option><option value="cliente">Cliente</option></select></div>
+  </div>
+  <div class="ap-barra"><span id="ap-contador"></span><a onclick="apLimpiar()">Quitar filtros</a></div>
+  <div id="ap-estado" class="ap-vacio"></div>
+  <div id="ap-lista"></div>
 </div>
 
 <script>
@@ -2173,6 +2221,7 @@ function mostrarAcceso(msg) {
 }
 
 function ocultarAcceso() {
+  document.getElementById('area-tabs').classList.add('visible');   // pestañas «Nuevo pedido» / «Mis pedidos»
   document.getElementById('acceso').classList.add('oculto');
   document.body.style.overflow = '';
 }
@@ -2538,6 +2587,135 @@ function descargarFichaPedido(i) {
   } catch (e) { alert('No se pudo generar la ficha: ' + e.message); }
 }
 
+// ── ÁREA DEL COMERCIAL: «MIS PEDIDOS» ───────────────────
+let misPedidosDB = [], misPedidosHora = 0, apLimite = 50;
+const AP_MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+
+function apNorm(s) { return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); }
+function apVal(id) { return document.getElementById(id).value; }
+function apFecha(iso) { const p = String(iso).split('-'); return p.length === 3 ? p[2] + '/' + p[1] + '/' + p[0] : iso; }
+
+function mostrarVista(v) {
+  const ped = v === 'pedidos';
+  document.getElementById('tab-nuevo').classList.toggle('activa', !ped);
+  document.getElementById('tab-pedidos').classList.toggle('activa', ped);
+  document.querySelector('.container').style.display = ped ? 'none' : '';
+  document.getElementById('progress-bar').style.display = ped ? 'none' : '';
+  document.getElementById('area-pedidos').style.display = ped ? 'block' : 'none';
+  window.scrollTo({ top: 0 });
+  if (ped) cargarMisPedidos(Date.now() - misPedidosHora > 60000);   // se recarga si tiene más de 1 minuto
+}
+
+async function cargarMisPedidos(forzar) {
+  const estado = document.getElementById('ap-estado');
+  if (!forzar && misPedidosHora) { apPintar(); return; }
+  estado.style.display = 'block';
+  estado.textContent = 'Cargando tus pedidos...';
+  try {
+    const r = await (await fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify({ accion: 'misPedidos', codigo: codigoActual || leerCodigo() }) })).json();
+    if (!r.ok) { estado.textContent = r.error || 'No se pudieron cargar tus pedidos.'; return; }
+    misPedidosDB = r.pedidos || [];
+    misPedidosHora = Date.now();
+    apRellenarProductos();
+    apPintar();
+  } catch (e) {
+    estado.textContent = 'No se pudo conectar. Comprueba tu conexión.';
+  }
+}
+
+function apRellenarProductos() {
+  const set = new Set();
+  misPedidosDB.forEach(p => String(p.productos).split(' | ').forEach(s => { const t = s.trim().split(' ')[0]; if (t) set.add(t); }));
+  const sel = document.getElementById('ap-producto');
+  const actual = sel.value;
+  sel.innerHTML = '<option value="">Todos los productos</option>';
+  Array.from(set).sort((a, b) => a.localeCompare(b, 'es')).forEach(t => {
+    const o = document.createElement('option');
+    o.value = t;
+    o.textContent = FORMATO_LABEL[t.toLowerCase()] || t;
+    sel.appendChild(o);
+  });
+  sel.value = actual;
+}
+
+function apReiniciar() { apLimite = 50; apPintar(); }
+function apLimpiar() {
+  ['ap-buscar', 'ap-desde', 'ap-hasta', 'ap-producto'].forEach(id => { document.getElementById(id).value = ''; });
+  apReiniciar();
+}
+
+function apPintar() {
+  const q = apNorm(apVal('ap-buscar')), prod = apNorm(apVal('ap-producto'));
+  const desde = apVal('ap-desde'), hasta = apVal('ap-hasta'), porCliente = apVal('ap-agrupar') === 'cliente';
+  const lista = misPedidosDB.filter(p =>
+    (!q || apNorm(p.cliente + ' ' + p.id + ' ' + p.num + ' ' + p.productos).includes(q)) &&
+    (!prod || apNorm(p.productos).includes(prod)) &&
+    (!desde || p.fecha >= desde) && (!hasta || p.fecha <= hasta));
+  lista.sort(porCliente
+    ? (a, b) => apNorm(a.cliente).localeCompare(apNorm(b.cliente), 'es') || b.fecha.localeCompare(a.fecha)
+    : (a, b) => b.fecha.localeCompare(a.fecha) || b.id.localeCompare(a.id));
+
+  const estado = document.getElementById('ap-estado'), cont = document.getElementById('ap-lista');
+  cont.innerHTML = '';
+  document.getElementById('ap-contador').textContent = lista.length + (lista.length === 1 ? ' pedido' : ' pedidos') + (lista.length !== misPedidosDB.length ? ' de ' + misPedidosDB.length : '');
+  if (!lista.length) {
+    estado.style.display = 'block';
+    estado.textContent = misPedidosDB.length ? 'Ningún pedido coincide con los filtros.' : 'Todavía no tienes pedidos guardados. Los nuevos aparecerán aquí.';
+    return;
+  }
+  estado.style.display = 'none';
+
+  let grupoActual = null;
+  lista.slice(0, apLimite).forEach(p => {
+    const grupo = porCliente ? (p.cliente || 'Sin nombre') : (AP_MESES[Number(p.fecha.slice(5, 7)) - 1] || '') + ' ' + p.fecha.slice(0, 4);
+    if (grupo !== grupoActual) {
+      grupoActual = grupo;
+      const h = document.createElement('div');
+      h.className = 'ap-grupo';
+      h.textContent = grupo;
+      cont.appendChild(h);
+    }
+    const c = document.createElement('div');
+    c.className = 'ap-card';
+    const top = document.createElement('div'); top.className = 'ap-card-top';
+    const n = document.createElement('div'); n.className = 'ap-cliente'; n.textContent = p.cliente || '—';
+    const f = document.createElement('div'); f.className = 'ap-fecha'; f.textContent = apFecha(p.fecha);
+    top.append(n, f);
+    const pr = document.createElement('div'); pr.className = 'ap-prod'; pr.textContent = p.productos || '—';
+    const meta = document.createElement('div'); meta.className = 'ap-meta';
+    [p.id, p.cantidad, p.tipo].forEach(t => { if (t) { const s = document.createElement('span'); s.textContent = t; meta.appendChild(s); } });
+    if (p.estado === 'Editado') { const b = document.createElement('span'); b.className = 'ap-badge'; b.textContent = 'Editado'; meta.appendChild(b); }
+    const ac = document.createElement('div'); ac.className = 'ap-acciones';
+    const bt = document.createElement('button'); bt.type = 'button'; bt.className = 'ap-btn'; bt.textContent = 'Descargar ficha (PDF)';
+    bt.onclick = () => descargarFichaMiPedido(p.id, bt);
+    ac.appendChild(bt);
+    c.append(top, pr, meta, ac);
+    cont.appendChild(c);
+  });
+  if (lista.length > apLimite) {
+    const mas = document.createElement('button');
+    mas.type = 'button'; mas.className = 'ap-btn'; mas.style.cssText = 'display:block;margin:14px auto';
+    mas.textContent = 'Mostrar más (' + (lista.length - apLimite) + ' restantes)';
+    mas.onclick = () => { apLimite += 50; apPintar(); };
+    cont.appendChild(mas);
+  }
+}
+
+async function descargarFichaMiPedido(id, btn) {
+  const txt = btn.textContent;
+  btn.disabled = true; btn.textContent = 'Preparando...';
+  try {
+    const r = await (await fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify({ accion: 'detallePedido', codigo: codigoActual || leerCodigo(), id: id }) })).json();
+    if (!r.ok) throw new Error(r.error || 'No se encontró el pedido.');
+    const d = r.pedido.datos || {};
+    d.fechaPedido = r.pedido.fecha;   // la ficha lleva la fecha original del pedido
+    generarFichaPDF(d, r.pedido.id).save(`Ficha_tecnica_${String(r.pedido.id).replace(/[^\w-]/g, '_')}.pdf`);
+  } catch (e) {
+    alert('No se pudo generar la ficha: ' + e.message);
+  }
+  btn.disabled = false; btn.textContent = txt;
+}
+
 function rellenarProducto(card, p) {
   const pid = card.dataset.pid;
   const sino = (sel, val) => { const b = Array.from(card.querySelectorAll(sel + ' .sino-btn')).find(x => x.textContent.trim() === val); if (b) b.click(); };
@@ -2691,7 +2869,7 @@ function dibujarFichaPDF(d, idPedido, k) {
   doc.text('JUMARVA', M, 10.5);
   doc.setFont('helvetica', 'normal'); doc.setFontSize(8);
   doc.text('FICHA TÉCNICA · SOLICITUD DE PRESUPUESTO', W - M, 7, { align: 'right' });
-  doc.text(new Date().toLocaleDateString('es-ES'), W - M, 12, { align: 'right' });
+  doc.text((d.fechaPedido ? new Date(d.fechaPedido + 'T12:00:00') : new Date()).toLocaleDateString('es-ES'), W - M, 12, { align: 'right' });
   y = 20;
 
   const ensure = h => { if (y + h > LIMITE) { doc.addPage(); y = 14; } };
