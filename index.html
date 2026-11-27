@@ -15,7 +15,7 @@
 <link rel="icon" type="image/png" sizes="192x192" href="icono/icon-192.png">
 <link rel="apple-touch-icon" href="icono/apple-touch-icon.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<meta name="app-version" content="2026-11-27-9">
+<meta name="app-version" content="2026-11-27-10">
 <meta http-equiv="Cache-Control" content="no-cache">
 <script>
 // Actualización automática: al abrir, compara su versión con la publicada. Si hay una nueva, se recarga sola.
@@ -1518,7 +1518,7 @@
         <div class="upload-zone" id="dropzone" onclick="document.getElementById('file-input').click()">
           <span class="upload-icon">📎</span>
           <p>Arrastra archivos aquí o <span>haz clic para seleccionar</span></p>
-          <p style="margin-top:4px;font-size:12px;color:var(--gray-mid)">PNG, JPG, PDF, AI, EPS, TTF, OTF · Máx. 20 MB por archivo</p>
+          <p style="margin-top:4px;font-size:12px;color:var(--gray-mid)">PNG, JPG, PDF, AI, EPS, TTF, OTF · Se envían sin comprimir. Máx. 20 MB por archivo; los más grandes, por WeTransfer</p>
         </div>
         <input type="file" id="file-input" multiple accept=".png,.jpg,.jpeg,.pdf,.ai,.eps,.svg,.ttf,.otf,.woff" style="display:none" onchange="addFiles(this.files)">
         <div class="file-list" id="file-list"></div>
@@ -2033,10 +2033,18 @@ function toggleChip(el, grupo) {
 
 // Archivos
 let files = [];
+// Lo máximo que cabe en un correo. Los archivos no se comprimen: si entre todos pasan, van en varios correos.
+const MAX_CORREO = 20 * 1024 * 1024;
 function addFiles(fl) {
-  Array.from(fl).forEach(f => { if (!files.find(x => x.name === f.name)) files.push(f); });
+  const grandes = [];
+  Array.from(fl).forEach(f => {
+    if (f.size > MAX_CORREO) grandes.push(`${f.name} (${(f.size / 1048576).toFixed(1)} MB)`);
+    else if (!files.find(x => x.name === f.name)) files.push(f);
+  });
   if (files.length > 0) document.getElementById('dropzone').classList.remove('error');
   renderFiles();
+  document.getElementById('file-input').value = '';
+  if (grandes.length) alert('⚠ No se puede enviar desde aquí (más de 20 MB):\n\n' + grandes.join('\n') + '\n\nPor favor, envíalo por WeTransfer. ¡Gracias!');
 }
 function renderFiles() {
   const list = document.getElementById('file-list');
@@ -3338,66 +3346,50 @@ function recogerDatos() {
   };
 }
 
-// ── CONVERTIR ARCHIVOS A BASE64 ─────────────────────────
-// ── COMPRIMIR IMÁGENES ANTES DE ENVIAR (acelera el envío en móvil) ──
-function comprimirImagen(file, maxAncho = 1600, calidad = 0.75) {
-  return new Promise((resolve) => {
-    // Solo comprimir imágenes JPG/PNG — el resto de archivos se deja igual
-    if (!file.type.startsWith('image/') || file.type === 'image/svg+xml') {
-      resolve(file);
-      return;
-    }
-
-    const img = new Image();
-    const reader = new FileReader();
-
-    reader.onload = (e) => {
-      img.onload = () => {
-        let { width, height } = img;
-
-        if (width > maxAncho) {
-          height = Math.round((height * maxAncho) / width);
-          width = maxAncho;
-        }
-
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, width, height);
-
-        canvas.toBlob((blob) => {
-          if (!blob || blob.size >= file.size) {
-            // Si la compresión no ayuda, mantener el original
-            resolve(file);
-            return;
-          }
-          const archivoComprimido = new File([blob], file.name, { type: 'image/jpeg' });
-          resolve(archivoComprimido);
-        }, 'image/jpeg', calidad);
-      };
-      img.onerror = () => resolve(file); // si falla, usar el original
-      img.src = e.target.result;
-    };
-    reader.onerror = () => resolve(file);
-    reader.readAsDataURL(file);
-  });
-}
-
-// ── CONVERTIR ARCHIVOS A BASE64 (con compresión previa de imágenes) ──
-async function archivosABase64() {
+// ── ARCHIVOS A BASE64 (tal cual, sin comprimir) ─────────
+async function archivosABase64(lista) {
   const resultado = [];
-  for (const file of files) {
-    const archivoFinal = await comprimirImagen(file);
+  for (const file of lista) {
     const base64 = await new Promise((res, rej) => {
       const reader = new FileReader();
       reader.onload  = () => res(reader.result.split(',')[1]);
       reader.onerror = rej;
-      reader.readAsDataURL(archivoFinal);
+      reader.readAsDataURL(file);
     });
-    resultado.push({ nombre: archivoFinal.name, tipo: archivoFinal.type, data: base64 });
+    resultado.push({ nombre: file.name, tipo: file.type, data: base64 });
   }
   return resultado;
+}
+
+// Reparte los archivos en grupos que quepan en un correo. El primero va con la ficha (ocupa «inicial» bytes).
+function repartirEnCorreos(lista, inicial) {
+  const lotes = [{ bytes: inicial, archivos: [] }];
+  lista.forEach(f => {
+    let lote = lotes.find(l => l.bytes + f.size <= MAX_CORREO);
+    if (!lote) { lote = { bytes: 0, archivos: [] }; lotes.push(lote); }
+    lote.bytes += f.size;
+    lote.archivos.push(f);
+  });
+  return lotes.map(l => l.archivos);
+}
+// Correos de continuación (uno por grupo). Devuelve los nombres de los archivos que no se hayan podido enviar:
+// el pedido ya está registrado, así que un fallo aquí nunca debe repetir el envío del presupuesto.
+async function enviarContinuaciones(id, codigo, lotes, avance) {
+  const fallidos = [];
+  for (let i = 1; i < lotes.length; i++) {
+    if (avance) avance(i + 1, lotes.length);
+    try {
+      const archivos = await archivosABase64(lotes[i]);
+      const r = await (await fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify({
+        accion: 'adjuntosExtra', codigo: codigo, id: id, parte: i + 1, partes: lotes.length, archivos: archivos }) })).json();
+      if (!r.ok) throw new Error(r.error || 'No se pudo enviar');
+      fallidos.push(...(r.archivosFallidos || []));
+    } catch (e) {
+      console.error('No se pudo enviar el correo de continuación:', e);
+      fallidos.push(...lotes[i].map(f => f.name));
+    }
+  }
+  return fallidos;
 }
 
 // ── ENVIAR A APPS SCRIPT ────────────────────────────────
@@ -3427,12 +3419,9 @@ async function submitForm() {
       }
     }
 
-    if (files.length > 0) {
-      btnText.textContent = 'Optimizando archivos...';
-    } else {
-      btnText.textContent = 'Enviando...';
-    }
-    const archivos = await archivosABase64();
+    btnText.textContent = files.length > 0 ? 'Preparando archivos...' : 'Enviando...';
+    const archivos = [];
+    let tamFicha = 0;
 
     // Ficha técnica en PDF (si falla, el envío continúa sin ella)
     ultimaFicha = null;
@@ -3443,9 +3432,12 @@ async function submitForm() {
       const nombrePdf = `Ficha_tecnica_${idArchivo}.pdf`;
       ultimaFicha = { doc: pdf, nombre: nombrePdf };
       archivos.push({ nombre: nombrePdf, tipo: 'application/pdf', data: pdf.output('datauristring').split(',')[1] });
+      tamFicha = Math.ceil(archivos[0].data.length * 3 / 4);
     } catch (e) {
       console.error('No se pudo generar la ficha técnica:', e);
     }
+    const lotes = repartirEnCorreos(files, tamFicha);
+    archivos.push(...await archivosABase64(lotes[0]));
     datos.archivos = archivos;
 
     btnText.textContent = 'Enviando presupuesto...';
@@ -3459,6 +3451,10 @@ async function submitForm() {
 
     if (json.ok) {
       const idPedido = json.id || document.getElementById('id-value').textContent || '—';
+      const fallidos = [...(json.archivosFallidos || [])];
+      if (json.emailOk === false) fallidos.push(...lotes[0].map(f => f.name));
+      fallidos.push(...await enviarContinuaciones(idPedido, datos.codigo, lotes,
+        (n, total) => { btnText.textContent = `Enviando archivos (correo ${n} de ${total})...`; }));
       document.getElementById('success-id').textContent = idPedido;
       document.querySelector('#success-screen h2').textContent = modoPedido && modoPedido.tipo === 'editar' ? 'Pedido editado' : 'Presupuesto enviado';
       misPedidosHora = 0;   // «Mis pedidos» se vuelve a cargar
@@ -3466,13 +3462,15 @@ async function submitForm() {
       document.getElementById('success-screen').classList.add('show');
       document.body.style.overflow = 'hidden';
 
-      // Avisar si algún archivo no se pudo guardar correctamente
-      if (json.archivosFallidos && json.archivosFallidos.length > 0) {
+      // Avisar si el correo o algún archivo no se pudo enviar
+      if (json.emailOk === false || fallidos.length > 0) {
         setTimeout(() => {
           alert(
-            '⚠ El presupuesto se envió correctamente, pero estos archivos no se pudieron guardar:\n\n' +
-            json.archivosFallidos.join('\n') +
-            '\n\nVuelve a enviarlos por email a ofitec@jumarva.com o dis.grafico@jumarva.com con el ID del pedido: ' + idPedido
+            (json.emailOk === false
+              ? '⚠ El pedido ha quedado registrado, pero EL CORREO DEL PEDIDO NO SE HA ENVIADO. Por favor, avisa a ofitec@jumarva.com o dis.grafico@jumarva.com.'
+              : '⚠ El presupuesto se envió, pero faltan archivos.') +
+            (fallidos.length ? '\n\nNo se han enviado:\n' + fallidos.join('\n') + '\n\nPor favor, envíalos por WeTransfer. ¡Gracias!' : '') +
+            '\n\nID del pedido: ' + idPedido
           );
         }, 400);
       }
