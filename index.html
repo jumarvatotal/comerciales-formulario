@@ -15,7 +15,7 @@
 <link rel="icon" type="image/png" sizes="192x192" href="icono/icon-192.png">
 <link rel="apple-touch-icon" href="icono/apple-touch-icon.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<meta name="app-version" content="2026-11-27-6">
+<meta name="app-version" content="2026-11-27-9">
 <meta http-equiv="Cache-Control" content="no-cache">
 <script>
 // Actualización automática: al abrir, compara su versión con la publicada. Si hay una nueva, se recarga sola.
@@ -1157,6 +1157,7 @@
   .page-header h1 { font-size: 22px; font-weight: 700; text-transform: none; letter-spacing: 0; line-height: 1.2; }
   .page-header p { font-size: 13px; color: #77756f; }
   .section { border: 1px solid #e6e5e1; border-radius: 10px; padding: 0; box-shadow: none; overflow: hidden; }
+  #sec-cliente { overflow: visible; }   /* la lista de clientes debe poder salir de la sección */
   .section-header { margin: 0; padding: 13px 16px; border-bottom: 1px solid #e6e5e1; gap: 8px; }
   .section-num { width: 20px; height: 20px; font-size: 11px; background: #161615; }
   .section-title { font-size: 12px; font-weight: 600; letter-spacing: .06em; color: #77756f; }
@@ -1727,8 +1728,8 @@ function crearTarjetaProducto() {
       </div>
       <div class="field" style="margin-bottom:0">
         <label>Cantidad de unidades <span class="req">*</span></label>
-        <input type="number" placeholder="499" min="499" class="p-cantidad">
-        <p class="field-hint">Pedido mínimo 499 unidades</p>
+        <input type="text" inputmode="decimal" autocomplete="off" placeholder="Ej: 1000, 1500, 2000" class="p-cantidad">
+        <p class="field-hint">Para presupuestar la misma caja en varias cantidades, sepáralas con comas. Mínimo 499 unidades cada una.</p>
       </div>
     </div>
 
@@ -2146,6 +2147,33 @@ document.addEventListener('change', function(e) {
   }
 });
 
+// «1000, 1500 y 2.000» → [1000, 1500, 2000]. El punto de millares se admite (1.500 = 1500).
+function leerCantidades(texto) {
+  return (String(texto || '').replace(/(\d)\.(?=\d{3}(?!\d))/g, '$1').match(/\d+/g) || []).map(Number);
+}
+
+// Fecha de entrega: de hoy en adelante y como mucho 2 años (evita fechas pasadas y años mal escritos, p. ej. 0026)
+function fechaISO(f) { return f.getFullYear() + '-' + String(f.getMonth() + 1).padStart(2, '0') + '-' + String(f.getDate()).padStart(2, '0'); }
+function limitesFecha() {
+  const hoy = new Date(), tope = new Date(hoy.getFullYear() + 2, 11, 31);
+  const el = document.getElementById('fecha-entrega');
+  el.min = fechaISO(hoy); el.max = fechaISO(tope);
+  return el;
+}
+// Muestra el aviso que corresponda y devuelve true si la fecha vale
+function comprobarFecha(obligatoria) {
+  const el = limitesFecha(), v = el.value;
+  let aviso = '';
+  if (!v) { if (obligatoria || el.validity.badInput) aviso = 'Selecciona la fecha estimada de entrega completa'; }
+  else if (v.length !== 10 || v > el.max) aviso = 'Revisa el año: escríbelo con 4 cifras (ej: ' + new Date().getFullYear() + ')';
+  else if (v < el.min) aviso = v < '2000' ? 'Revisa el año: escríbelo con 4 cifras (ej: ' + new Date().getFullYear() + ')' : 'La fecha ya ha pasado: elige hoy o una fecha posterior';
+  if (aviso) document.getElementById('err-fecha').textContent = '⚠ ' + aviso;
+  markInput('fecha-entrega', !!aviso); showErr('err-fecha', !!aviso);
+  return !aviso;
+}
+limitesFecha().addEventListener('focus', limitesFecha);
+document.getElementById('fecha-entrega').addEventListener('blur', () => comprobarFecha(false));
+
 function validarFormulario() {
   let ok = true;
 
@@ -2200,9 +2228,10 @@ function validarFormulario() {
       if (!medidaOk) ok = false;
     });
 
-    // Cantidad mínima 499
+    // Cantidades: una o varias, mínimo 499 cada una
     const cantidadInp = card.querySelector('.p-cantidad');
-    const cantidadOk = parseInt(cantidadInp.value || 0) >= 499;
+    const cantidades = leerCantidades(cantidadInp.value);
+    const cantidadOk = cantidades.length > 0 && cantidades.every(n => n >= 499);
     cantidadInp.classList.toggle('error', !cantidadOk);
     if (!cantidadOk) ok = false;
 
@@ -2243,9 +2272,7 @@ function validarFormulario() {
   });
 
   // ── SECCIÓN 4: Entrega ──
-  const fechaOk = !!document.getElementById('fecha-entrega').value;
-  markInput('fecha-entrega', !fechaOk); showErr('err-fecha', !fechaOk);
-  if (!fechaOk) ok = false;
+  if (!comprobarFecha(true)) ok = false;
 
   const entregaEl = document.getElementById('entrega');
   const entregaOk = entregaEl.value.trim().length >= 5;
@@ -3062,7 +3089,7 @@ function recogerDatosProducto(card) {
     largo:             card.querySelector('.p-largo')?.value || '',
     ancho:             card.querySelector('.p-ancho')?.value || '',
     alto:              card.querySelector('.p-alto')?.value || '',
-    cantidad:          card.querySelector('.p-cantidad')?.value || '',
+    cantidad:          leerCantidades(card.querySelector('.p-cantidad')?.value).join(' / '),
     barnizadoAnverso:  barnizAnverso,
     barnizadoReverso:  barnizReverso,
     barnizadoTipo:     (barnizAnverso === 'Sí' || barnizReverso === 'Sí') ? act('.p-barniz-tipo') : '',
